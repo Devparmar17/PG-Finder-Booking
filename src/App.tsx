@@ -220,9 +220,9 @@ export default function App() {
   const unreadNotificationsCount = notifications.filter((n) => !n.read).length;
 
   return (
-    <div className="min-h-screen bg-slate-900/5 sm:bg-slate-200/60 flex justify-center text-slate-900 antialiased font-sans selection:bg-[#7C3AED] selection:text-white">
-      {/* Mobile Frame Container */}
-      <main className="w-full max-w-md bg-[#FBF9FE] min-h-screen relative flex flex-col shadow-2xl border-x border-purple-100/60 overflow-x-hidden">
+    <div className="min-h-screen bg-slate-900/5 sm:bg-slate-100/70 flex justify-center text-slate-900 antialiased font-sans selection:bg-[#7C3AED] selection:text-white">
+      {/* Responsive App Frame Container */}
+      <main className="w-full max-w-md sm:max-w-xl md:max-w-3xl lg:max-w-4xl xl:max-w-5xl bg-[#FBF9FE] min-h-screen relative flex flex-col shadow-2xl border-x border-purple-100/60 overflow-x-hidden transition-all duration-200">
         {/* Top App Header */}
         <Header
           unreadNotificationCount={unreadNotificationsCount}
@@ -234,7 +234,7 @@ export default function App() {
 
         {/* TAB 1: Explore (Main Screen matching screenshot iPhone 14 & 15 Pro - 41.png) */}
         {activeTab === 'explore' && (
-          <div className="flex-1 pb-24 space-y-2 animate-in fade-in duration-200">
+          <div className="flex-1 pb-28 space-y-3 animate-in fade-in duration-200">
             {/* Find Your PG Search Bar */}
             <SearchBar
               searchQuery={filters.searchQuery}
@@ -242,7 +242,7 @@ export default function App() {
               onLocationTagClick={(tag) => handleFilterUpdate({ searchQuery: tag })}
             />
 
-            {/* Filter Pills (All, Price ▾, Food ▾, Category ▾, Filters) */}
+            {/* Filter Pills (All, Price ▾, Food ▾, Category ▾) */}
             <FilterBar
               filters={filters}
               onFilterChange={handleFilterUpdate}
@@ -271,7 +271,7 @@ export default function App() {
             )}
 
             {/* Recommended Accommodations Section (matching screenshot) */}
-            <section id="section-recommended" className="px-5 py-2">
+            <section id="section-recommended" className="px-5 sm:px-6 py-2">
               <div className="flex items-center justify-between mb-3">
                 <h2 className="text-xl font-extrabold text-slate-800 tracking-tight">
                   {filters.searchQuery ? (
@@ -287,9 +287,13 @@ export default function App() {
                     </span>
                   )}
                 </h2>
+
+                <span className="text-xs font-bold text-[#7C3AED] bg-purple-50 px-2.5 py-1 rounded-full border border-purple-200/80">
+                  {filteredListings.length} Available
+                </span>
               </div>
 
-              {/* Listings Stack */}
+              {/* Listings Stack - Responsive 1-col on mobile, 2-col on md+ */}
               {filteredListings.length === 0 ? (
                 <div className="bg-white rounded-2xl p-8 text-center border border-slate-200/90 shadow-sm space-y-2">
                   <div className="w-12 h-12 bg-purple-50 text-[#7C3AED] rounded-full flex items-center justify-center mx-auto">
@@ -307,7 +311,7 @@ export default function App() {
                   </button>
                 </div>
               ) : (
-                <div className="space-y-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
                   {recommendedListings.map((pg) => (
                     <PGCard
                       key={pg.id}

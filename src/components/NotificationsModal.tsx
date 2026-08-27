@@ -20,26 +20,26 @@ export const NotificationsModal: React.FC<NotificationsModalProps> = ({
       id="notifications-modal"
       className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex justify-center items-end sm:items-center p-0 sm:p-4 animate-in fade-in duration-200"
     >
-      <div className="bg-white w-full max-w-md max-h-[85vh] rounded-t-2xl sm:rounded-xl flex flex-col shadow-xl overflow-hidden border border-slate-200">
+      <div className="bg-white w-full max-w-md sm:max-w-lg max-h-[85vh] rounded-t-3xl sm:rounded-2xl flex flex-col shadow-2xl overflow-hidden border border-slate-200">
         {/* Header */}
-        <div className="px-5 py-4 border-b border-slate-200 flex items-center justify-between">
+        <div className="px-6 py-4 border-b border-slate-200/80 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Bell className="w-5 h-5 text-blue-600" />
-            <h2 className="text-base font-bold text-slate-900">Notifications</h2>
+            <Bell className="w-5 h-5 text-[#7C3AED]" />
+            <h2 className="text-base font-extrabold text-slate-900">Notifications</h2>
           </div>
 
           <div className="flex items-center gap-3">
             {notifications.length > 0 && (
               <button
                 onClick={onClearAll}
-                className="text-xs font-semibold text-blue-600 hover:text-blue-700 cursor-pointer"
+                className="text-xs font-bold text-[#7C3AED] hover:text-purple-700 cursor-pointer"
               >
                 Clear All
               </button>
             )}
             <button
               onClick={onClose}
-              className="p-1 rounded-lg hover:bg-slate-100 text-slate-500 cursor-pointer"
+              className="p-1.5 rounded-xl hover:bg-slate-100 text-slate-500 cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
@@ -47,7 +47,7 @@ export const NotificationsModal: React.FC<NotificationsModalProps> = ({
         </div>
 
         {/* List */}
-        <div className="p-4 overflow-y-auto flex-1 space-y-2.5">
+        <div className="p-5 overflow-y-auto flex-1 space-y-2.5">
           {notifications.length === 0 ? (
             <div className="py-12 text-center text-slate-500 text-xs">
               No new notifications right now.
@@ -57,10 +57,10 @@ export const NotificationsModal: React.FC<NotificationsModalProps> = ({
               <div
                 key={n.id}
                 onClick={() => onMarkAsRead(n.id)}
-                className={`p-3.5 rounded-lg border transition-all cursor-pointer ${
+                className={`p-3.5 rounded-xl border transition-all cursor-pointer ${
                   n.read
                     ? 'bg-white border-slate-200 text-slate-600'
-                    : 'bg-blue-50/60 border-blue-200 text-slate-900 font-medium'
+                    : 'bg-purple-50/70 border-purple-200 text-slate-900 font-medium'
                 }`}
               >
                 <div className="flex items-start justify-between gap-2">

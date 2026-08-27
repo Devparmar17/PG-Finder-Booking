@@ -56,9 +56,9 @@ export const InteractiveMapView: React.FC<InteractiveMapViewProps> = ({
   return (
     <div
       id="interactive-map-view"
-      className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex justify-center animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex justify-center animate-in fade-in duration-200"
     >
-      <div className="bg-[#EBF2F7] w-full max-w-md h-full flex flex-col relative overflow-hidden shadow-2xl">
+      <div className="bg-[#EBF2F7] w-full max-w-md sm:max-w-xl md:max-w-3xl lg:max-w-4xl xl:max-w-5xl h-full flex flex-col relative overflow-hidden shadow-2xl">
         {/* Map Top Floating Controls */}
         <div className="absolute top-0 left-0 right-0 z-20 p-4 space-y-2 pointer-events-none">
           {/* Top Bar with Back, Search, and Locate button */}
@@ -66,7 +66,7 @@ export const InteractiveMapView: React.FC<InteractiveMapViewProps> = ({
             <button
               id="btn-close-map"
               onClick={onClose}
-              className="p-2.5 bg-white/95 backdrop-blur-md rounded-2xl shadow-md border border-slate-200/80 text-slate-800 hover:bg-slate-50 transition-colors"
+              className="p-2.5 bg-white/95 backdrop-blur-md rounded-2xl shadow-md border border-slate-200/80 text-slate-800 hover:bg-slate-50 transition-colors cursor-pointer"
               aria-label="Back to list"
             >
               <ArrowLeft className="w-5 h-5" />
@@ -78,13 +78,13 @@ export const InteractiveMapView: React.FC<InteractiveMapViewProps> = ({
                 value={filters.searchQuery}
                 onChange={(e) => onFilterChange({ searchQuery: e.target.value })}
                 placeholder="Search area (e.g. Thaltej, Bodakdev)"
-                className="w-full pl-9 pr-8 py-2.5 bg-white/95 backdrop-blur-md border border-slate-200/80 rounded-2xl text-xs font-medium text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500 shadow-md"
+                className="w-full pl-9 pr-8 py-2.5 bg-white/95 backdrop-blur-md border border-slate-200/80 rounded-2xl text-xs font-medium text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#7C3AED] shadow-md"
               />
-              <Search className="w-4 h-4 text-purple-600 absolute left-3 top-1/2 -translate-y-1/2" />
+              <Search className="w-4 h-4 text-[#7C3AED] absolute left-3 top-1/2 -translate-y-1/2" />
               {filters.searchQuery && (
                 <button
                   onClick={() => onFilterChange({ searchQuery: '' })}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-slate-400"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-slate-400 cursor-pointer"
                 >
                   <X className="w-3.5 h-3.5" />
                 </button>
@@ -93,7 +93,7 @@ export const InteractiveMapView: React.FC<InteractiveMapViewProps> = ({
 
             <button
               onClick={() => setShowRadiusMenu(!showRadiusMenu)}
-              className="px-3 py-2.5 bg-purple-600 text-white rounded-2xl shadow-md text-xs font-bold flex items-center gap-1 hover:bg-purple-700 transition-colors"
+              className="px-3.5 py-2.5 bg-[#7C3AED] text-white rounded-2xl shadow-md text-xs font-bold flex items-center gap-1.5 hover:bg-purple-700 transition-colors cursor-pointer"
             >
               <Navigation className="w-3.5 h-3.5" />
               <span>{radiusKm}km</span>
@@ -106,9 +106,9 @@ export const InteractiveMapView: React.FC<InteractiveMapViewProps> = ({
               <button
                 key={gen}
                 onClick={() => onFilterChange({ genderCategory: gen as any })}
-                className={`px-3 py-1.5 rounded-full text-xs font-bold capitalize backdrop-blur-md shadow-sm transition-all ${
+                className={`px-3.5 py-1.5 rounded-full text-xs font-bold capitalize backdrop-blur-md shadow-sm transition-all cursor-pointer ${
                   filters.genderCategory === gen
-                    ? 'bg-purple-600 text-white'
+                    ? 'bg-[#7C3AED] text-white'
                     : 'bg-white/90 text-slate-700 border border-slate-200/80 hover:bg-white'
                 }`}
               >
@@ -129,9 +129,9 @@ export const InteractiveMapView: React.FC<InteractiveMapViewProps> = ({
                       setRadiusKm(km);
                       setShowRadiusMenu(false);
                     }}
-                    className={`flex-1 py-1.5 rounded-xl text-xs font-bold ${
+                    className={`flex-1 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
                       radiusKm === km
-                        ? 'bg-purple-600 text-white'
+                        ? 'bg-[#7C3AED] text-white'
                         : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                     }`}
                   >
@@ -205,16 +205,14 @@ export const InteractiveMapView: React.FC<InteractiveMapViewProps> = ({
             </text>
 
             {/* User GPS Location Marker */}
-            <circle cx="110" cy="190" r="32" fill="#2563EB" fillOpacity="0.12" />
-            <circle cx="110" cy="190" r="14" fill="#2563EB" fillOpacity="0.25" />
-            <circle cx="110" cy="190" r="6" fill="#1D4ED8" stroke="#FFFFFF" strokeWidth="2" />
+            <circle cx="110" cy="190" r="32" fill="#7C3AED" fillOpacity="0.12" />
+            <circle cx="110" cy="190" r="14" fill="#7C3AED" fillOpacity="0.25" />
+            <circle cx="110" cy="190" r="6" fill="#7C3AED" stroke="#FFFFFF" strokeWidth="2" />
           </svg>
 
           {/* Interactive HTML Map Pins placed on SVG coordinates */}
           {listings.map((pg) => {
             const isSelected = selectedPG?.id === pg.id;
-
-            // Default fallback position if lat/lng math needed
             const pos = getCoordinatesPosition(pg.coordinates.lat, pg.coordinates.lng);
 
             return (
@@ -233,13 +231,13 @@ export const InteractiveMapView: React.FC<InteractiveMapViewProps> = ({
                 <div
                   className={`flex items-center gap-1 px-2.5 py-1.5 rounded-full shadow-md font-bold text-xs border transition-all ${
                     isSelected
-                      ? 'bg-blue-600 text-white border-white ring-4 ring-blue-500/30'
+                      ? 'bg-[#7C3AED] text-white border-white ring-4 ring-purple-500/30'
                       : 'bg-white text-slate-800 border-slate-300 hover:bg-slate-50'
                   }`}
                 >
                   <MapPin
                     className={`w-3.5 h-3.5 ${
-                      isSelected ? 'text-white' : 'text-blue-600'
+                      isSelected ? 'text-white' : 'text-[#7C3AED]'
                     }`}
                   />
                   <span>₹{(pg.pricePerMonth / 1000).toFixed(0)}k</span>
@@ -253,11 +251,11 @@ export const InteractiveMapView: React.FC<InteractiveMapViewProps> = ({
         {selectedPG && (
           <div
             id="map-selected-pg-drawer"
-            className="absolute bottom-4 left-4 right-4 z-30 bg-white rounded-xl p-3.5 shadow-xl border border-slate-200 animate-in slide-in-from-bottom-6 duration-200"
+            className="absolute bottom-4 left-4 right-4 z-30 bg-white rounded-2xl p-4 shadow-xl border border-slate-200 animate-in slide-in-from-bottom-6 duration-200"
           >
-            <div className="flex gap-3 items-center">
+            <div className="flex gap-3.5 items-center">
               {/* Photo */}
-              <div className="relative w-24 h-24 rounded-lg overflow-hidden bg-slate-100 shrink-0">
+              <div className="relative w-24 h-24 rounded-xl overflow-hidden bg-slate-100 shrink-0">
                 <img
                   src={selectedPG.images[0]}
                   alt={selectedPG.name}
@@ -276,14 +274,14 @@ export const InteractiveMapView: React.FC<InteractiveMapViewProps> = ({
                       {selectedPG.name}
                     </h3>
                     <div className="flex items-center gap-1 text-[11px] text-slate-500 truncate">
-                      <MapPin className="w-3 h-3 text-blue-600 shrink-0" />
+                      <MapPin className="w-3 h-3 text-[#7C3AED] shrink-0" />
                       <span>{selectedPG.area}, Ahmedabad</span>
                     </div>
                   </div>
 
                   <button
                     onClick={(e) => onToggleFavorite(selectedPG.id, e)}
-                    className="p-1 text-slate-400 hover:text-red-500"
+                    className="p-1 text-slate-400 hover:text-red-500 cursor-pointer"
                   >
                     <Heart
                       className={`w-4 h-4 ${
@@ -307,7 +305,7 @@ export const InteractiveMapView: React.FC<InteractiveMapViewProps> = ({
                   <button
                     id="btn-map-view-details"
                     onClick={() => onSelectPG(selectedPG)}
-                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg shadow-sm flex items-center gap-1 transition-all"
+                    className="px-4 py-2 bg-[#7C3AED] hover:bg-purple-700 text-white text-xs font-semibold rounded-xl shadow-sm flex items-center gap-1 transition-all cursor-pointer"
                   >
                     <span>View Details</span>
                     <ChevronRight className="w-3.5 h-3.5" />
