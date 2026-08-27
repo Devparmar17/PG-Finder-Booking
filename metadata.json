@@ -1,0 +1,6 @@
+{
+  "name": "PG Finder & Booking",
+  "description": "Streamlined PG accommodation finder with map exploration, financial transparency breakdown, real-time bed availability, daily food menu, verified resident reviews, and secure instant payment.",
+  "requestFramePermissions": ["geolocation"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
