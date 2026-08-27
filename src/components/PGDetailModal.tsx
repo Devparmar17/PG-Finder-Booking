@@ -78,29 +78,29 @@ export const PGDetailModal: React.FC<PGDetailModalProps> = ({
   const getAmenityIcon = (iconName: string) => {
     switch (iconName) {
       case 'Fingerprint':
-        return <Fingerprint className="w-5 h-5 text-purple-600" />;
+        return <Fingerprint className="w-5 h-5 text-blue-600" />;
       case 'Cctv':
-        return <Video className="w-5 h-5 text-purple-600" />;
+        return <Video className="w-5 h-5 text-blue-600" />;
       case 'Wifi':
-        return <Wifi className="w-5 h-5 text-purple-600" />;
+        return <Wifi className="w-5 h-5 text-blue-600" />;
       case 'WashingMachine':
-        return <WashingMachine className="w-5 h-5 text-purple-600" />;
+        return <WashingMachine className="w-5 h-5 text-blue-600" />;
       case 'ShieldCheck':
-        return <ShieldCheck className="w-5 h-5 text-purple-600" />;
+        return <ShieldCheck className="w-5 h-5 text-blue-600" />;
       case 'Droplets':
-        return <Droplets className="w-5 h-5 text-purple-600" />;
+        return <Droplets className="w-5 h-5 text-blue-600" />;
       case 'Zap':
-        return <Zap className="w-5 h-5 text-purple-600" />;
+        return <Zap className="w-5 h-5 text-blue-600" />;
       case 'Sparkles':
-        return <Sparkles className="w-5 h-5 text-purple-600" />;
+        return <Sparkles className="w-5 h-5 text-blue-600" />;
       case 'BookOpen':
-        return <BookOpen className="w-5 h-5 text-purple-600" />;
+        return <BookOpen className="w-5 h-5 text-blue-600" />;
       case 'Coffee':
-        return <Coffee className="w-5 h-5 text-purple-600" />;
+        return <Coffee className="w-5 h-5 text-blue-600" />;
       case 'Dumbbell':
-        return <Dumbbell className="w-5 h-5 text-purple-600" />;
+        return <Dumbbell className="w-5 h-5 text-blue-600" />;
       default:
-        return <CheckCircle2 className="w-5 h-5 text-purple-600" />;
+        return <CheckCircle2 className="w-5 h-5 text-blue-600" />;
     }
   };
 
@@ -109,19 +109,19 @@ export const PGDetailModal: React.FC<PGDetailModalProps> = ({
       id="pg-detail-modal"
       className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex justify-center overflow-y-auto animate-in fade-in duration-200"
     >
-      <div className="bg-[#F8F9FE] w-full max-w-md min-h-screen flex flex-col relative pb-28 shadow-2xl">
+      <div className="bg-slate-50 w-full max-w-md min-h-screen flex flex-col relative pb-28 shadow-2xl">
         {/* Top Header Bar matching screenshot */}
-        <div className="sticky top-0 z-40 bg-white/95 backdrop-blur-md px-4 py-3 border-b border-slate-100 flex items-center justify-between">
+        <div className="sticky top-0 z-40 bg-white/95 backdrop-blur-md px-4 py-3 border-b border-slate-200 flex items-center justify-between">
           <button
             id="btn-detail-back"
             onClick={onClose}
-            className="p-2 rounded-full hover:bg-slate-100 text-slate-700 transition-colors"
+            className="p-2 rounded-lg hover:bg-slate-100 text-slate-700 transition-colors"
             aria-label="Go back"
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
 
-          <h1 className="text-base font-extrabold text-slate-900 uppercase tracking-wide">
+          <h1 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
             {pg.name}
           </h1>
 
@@ -129,7 +129,7 @@ export const PGDetailModal: React.FC<PGDetailModalProps> = ({
             {/* Share button */}
             <button
               onClick={handleShare}
-              className="p-2 rounded-full hover:bg-slate-100 text-slate-600 transition-colors"
+              className="p-2 rounded-lg hover:bg-slate-100 text-slate-600 transition-colors"
               title="Share listing"
             >
               {copiedLink ? <Check className="w-5 h-5 text-emerald-600" /> : <Share2 className="w-5 h-5" />}
@@ -139,7 +139,7 @@ export const PGDetailModal: React.FC<PGDetailModalProps> = ({
             <button
               id="btn-detail-favorite"
               onClick={(e) => onToggleFavorite(pg.id, e)}
-              className="p-2 rounded-full hover:bg-red-50 text-slate-600 transition-colors"
+              className="p-2 rounded-lg hover:bg-red-50 text-slate-600 transition-colors"
               aria-label="Save to favorite"
             >
               <Heart
@@ -153,7 +153,7 @@ export const PGDetailModal: React.FC<PGDetailModalProps> = ({
             <a
               id="btn-detail-call"
               href={`tel:${pg.managerContact.phone}`}
-              className="p-2 rounded-full hover:bg-emerald-50 text-emerald-600 transition-colors"
+              className="p-2 rounded-lg hover:bg-emerald-50 text-emerald-600 transition-colors"
               aria-label="Call manager"
             >
               <Phone className="w-5 h-5" />
@@ -171,13 +171,13 @@ export const PGDetailModal: React.FC<PGDetailModalProps> = ({
             />
 
             {/* Virtual 360 Tour badge button */}
-            <div className="absolute bottom-3 left-3 flex items-center gap-1.5 px-3 py-1.5 bg-black/60 backdrop-blur-md text-white text-xs font-semibold rounded-full border border-white/20 shadow-md">
+            <div className="absolute bottom-3 left-3 flex items-center gap-1.5 px-3 py-1.5 bg-black/70 backdrop-blur-md text-white text-xs font-semibold rounded-md border border-white/20 shadow-md">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
               <span>360° Verified Room</span>
             </div>
 
             {/* Image pagination dots */}
-            <div className="absolute bottom-3 right-3 flex items-center gap-1 bg-black/40 backdrop-blur-sm px-2 py-1 rounded-full">
+            <div className="absolute bottom-3 right-3 flex items-center gap-1 bg-black/50 backdrop-blur-sm px-2 py-1 rounded-full">
               {pg.images.map((_, idx) => (
                 <button
                   key={idx}
@@ -199,7 +199,7 @@ export const PGDetailModal: React.FC<PGDetailModalProps> = ({
                 onClick={() => setSelectedPhotoIndex(idx)}
                 className={`relative w-16 h-12 rounded-lg overflow-hidden shrink-0 border-2 transition-all ${
                   selectedPhotoIndex === idx
-                    ? 'border-purple-500 scale-105 shadow-md'
+                    ? 'border-blue-500 scale-105 shadow-md'
                     : 'border-transparent opacity-60 hover:opacity-100'
                 }`}
               >
@@ -210,36 +210,36 @@ export const PGDetailModal: React.FC<PGDetailModalProps> = ({
         </div>
 
         {/* Property Title & Price Header matching screenshot */}
-        <div className="px-4 pt-4 pb-2 bg-white border-b border-slate-100">
+        <div className="px-4 pt-4 pb-3 bg-white border-b border-slate-200">
           <div className="flex items-start justify-between gap-2">
             <div>
-              <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">
+              <h2 className="text-xl font-bold text-slate-900 tracking-tight">
                 {pg.subTitle || pg.name}
               </h2>
               <div className="flex items-center gap-1 text-slate-500 text-xs mt-1">
-                <MapPin className="w-3.5 h-3.5 text-purple-600 shrink-0" />
+                <MapPin className="w-3.5 h-3.5 text-blue-600 shrink-0" />
                 <span>{pg.location}</span>
               </div>
             </div>
 
-            {/* Price Tag matching screenshot: 10000 ₹ /Mo */}
+            {/* Price Tag */}
             <div className="text-right shrink-0">
-              <div className="text-2xl font-black text-purple-700 tracking-tight">
-                {effectivePrice} ₹<span className="text-sm font-semibold text-slate-500">/Mo</span>
+              <div className="text-2xl font-black text-blue-600 tracking-tight">
+                {effectivePrice} ₹<span className="text-xs font-semibold text-slate-500">/Mo</span>
               </div>
               <div className="text-[11px] font-semibold text-emerald-600">0% Brokerage</div>
             </div>
           </div>
 
           {/* Quick Filter Selectors matching screenshot: Category ▾ | Sharing ▾ | Food ▾ */}
-          <div className="flex items-center gap-2 mt-3.5 pb-2 overflow-x-auto no-scrollbar">
+          <div className="flex items-center gap-2 mt-3.5 pb-1 overflow-x-auto no-scrollbar">
             {/* Category Dropdown */}
             <div className="relative shrink-0">
               <select
                 id="select-detail-category"
                 value={selectedSharing}
                 onChange={(e) => setSelectedSharing(e.target.value as any)}
-                className="appearance-none pl-2.5 pr-6 py-1.5 bg-slate-100 hover:bg-slate-200/80 rounded-xl text-xs font-semibold text-slate-700 cursor-pointer border border-slate-200/60"
+                className="appearance-none pl-2.5 pr-6 py-1.5 bg-slate-100 hover:bg-slate-200/80 rounded-lg text-xs font-semibold text-slate-700 cursor-pointer border border-slate-200"
               >
                 <option value="Single">Single Sharing</option>
                 <option value="Double">Double Sharing</option>
@@ -252,7 +252,7 @@ export const PGDetailModal: React.FC<PGDetailModalProps> = ({
             <div className="relative shrink-0">
               <select
                 id="select-detail-sharing"
-                className="appearance-none pl-2.5 pr-6 py-1.5 bg-slate-100 hover:bg-slate-200/80 rounded-xl text-xs font-semibold text-slate-700 cursor-pointer border border-slate-200/60"
+                className="appearance-none pl-2.5 pr-6 py-1.5 bg-slate-100 hover:bg-slate-200/80 rounded-lg text-xs font-semibold text-slate-700 cursor-pointer border border-slate-200"
               >
                 <option>AC Room</option>
                 <option>Non-AC Room</option>
@@ -267,7 +267,7 @@ export const PGDetailModal: React.FC<PGDetailModalProps> = ({
                 id="select-detail-food"
                 value={selectedFoodOption}
                 onChange={(e) => setSelectedFoodOption(e.target.value)}
-                className="appearance-none pl-2.5 pr-6 py-1.5 bg-slate-100 hover:bg-slate-200/80 rounded-xl text-xs font-semibold text-slate-700 cursor-pointer border border-slate-200/60"
+                className="appearance-none pl-2.5 pr-6 py-1.5 bg-slate-100 hover:bg-slate-200/80 rounded-lg text-xs font-semibold text-slate-700 cursor-pointer border border-slate-200"
               >
                 <option value="Included">Food Included (3 Meals)</option>
                 <option value="VegOnly">Pure Veg Mess</option>
@@ -281,20 +281,20 @@ export const PGDetailModal: React.FC<PGDetailModalProps> = ({
         {/* Section 1: Financial Transparency (Tackling hidden charges & deposit challenges) */}
         <section id="section-financial-transparency" className="px-4 py-4">
           <div className="flex items-center gap-2 mb-2.5">
-            <div className="w-6 h-6 rounded-lg bg-purple-100 flex items-center justify-center text-purple-700">
+            <div className="w-6 h-6 rounded-md bg-blue-50 flex items-center justify-center text-blue-600 border border-blue-100">
               <ShieldCheck className="w-4 h-4" />
             </div>
-            <h3 className="text-base font-extrabold text-slate-900 tracking-tight">
+            <h3 className="text-base font-bold text-slate-900 tracking-tight">
               Financial Transparency
             </h3>
           </div>
 
-          {/* Cost Breakdown Card matching screenshot */}
-          <div className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm">
+          {/* Cost Breakdown Card */}
+          <div className="bg-white rounded-xl p-4 border border-slate-200 shadow-sm">
             <div className="flex items-center justify-between mb-3 pb-2 border-b border-slate-100">
               <div className="font-bold text-sm text-slate-900">Cost Breakdown</div>
-              <div className="flex items-center gap-1 text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
-                <CheckCircle2 className="w-3 h-3" />
+              <div className="flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded">
+                <CheckCircle2 className="w-3 h-3 text-emerald-600" />
                 <span>No Extra Charge</span>
               </div>
             </div>
@@ -310,7 +310,7 @@ export const PGDetailModal: React.FC<PGDetailModalProps> = ({
               <div>
                 <div className="flex items-center justify-between">
                   <span className="text-slate-600 font-medium">Security Deposit</span>
-                  <span className="font-bold text-purple-700">
+                  <span className="font-bold text-blue-600">
                     {pg.costBreakdown.securityDeposit} ₹
                   </span>
                 </div>
@@ -336,8 +336,8 @@ export const PGDetailModal: React.FC<PGDetailModalProps> = ({
             </div>
 
             {/* Explanatory Policy note */}
-            <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-start gap-2 text-[11px] text-slate-500 bg-slate-50 p-2.5 rounded-xl">
-              <Info className="w-3.5 h-3.5 text-purple-600 shrink-0 mt-0.5" />
+            <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-start gap-2 text-[11px] text-slate-600 bg-slate-50 p-2.5 rounded-lg border border-slate-150">
+              <Info className="w-3.5 h-3.5 text-blue-600 shrink-0 mt-0.5" />
               <span>
                 {pg.costBreakdown.depositRefundableText}. Zero broker commission. 30-day notice period.
               </span>
@@ -349,10 +349,10 @@ export const PGDetailModal: React.FC<PGDetailModalProps> = ({
         <section id="section-bed-selection" className="px-4 py-2">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
-              <Layers className="w-4 h-4 text-purple-600" />
+              <Layers className="w-4 h-4 text-blue-600" />
               <h3 className="text-sm font-bold text-slate-900">Real-Time Bed Selection</h3>
             </div>
-            <span className="text-[11px] font-semibold text-purple-600">
+            <span className="text-[11px] font-semibold text-blue-600">
               {pg.availableBeds.filter((b) => b.status === 'available').length} Beds Available
             </span>
           </div>
@@ -367,12 +367,12 @@ export const PGDetailModal: React.FC<PGDetailModalProps> = ({
                   key={bed.id}
                   disabled={!isAvailable}
                   onClick={() => setSelectedBed(bed)}
-                  className={`p-2.5 rounded-xl border text-left transition-all ${
+                  className={`p-2.5 rounded-lg border text-left transition-all ${
                     !isAvailable
                       ? 'bg-slate-100 border-slate-200 opacity-50 cursor-not-allowed'
                       : isSelected
-                        ? 'bg-purple-50 border-purple-500 ring-2 ring-purple-400/30'
-                        : 'bg-white border-slate-200 hover:border-purple-300'
+                        ? 'bg-blue-50 border-blue-500 ring-2 ring-blue-500/20'
+                        : 'bg-white border-slate-200 hover:border-blue-300'
                   }`}
                 >
                   <div className="flex items-center justify-between text-[11px] font-bold mb-1">
@@ -386,7 +386,7 @@ export const PGDetailModal: React.FC<PGDetailModalProps> = ({
                     </span>
                   </div>
                   <div className="text-[10px] text-slate-500">{bed.roomNumber} (Fl. {bed.floor})</div>
-                  <div className="text-[11px] font-extrabold text-purple-700 mt-1">
+                  <div className="text-[11px] font-bold text-blue-600 mt-1">
                     ₹{bed.price.toLocaleString()}
                   </div>
                 </button>
@@ -395,19 +395,19 @@ export const PGDetailModal: React.FC<PGDetailModalProps> = ({
           </div>
         </section>
 
-        {/* Section 2: Weekly Food Menu Schedule (matching screenshot MON 12, TUE 13, WED 14...) */}
+        {/* Section 2: Weekly Food Menu Schedule */}
         <section id="section-food-menu" className="px-4 py-4">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-base font-extrabold text-slate-900 tracking-tight">
+            <h3 className="text-base font-bold text-slate-900 tracking-tight">
               Weekly Food Menu
             </h3>
-            <span className="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
+            <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded">
               Hygienic & Home-Cooked
             </span>
           </div>
 
-          {/* Days Horizontal Picker matching screenshot (MON 12, TUE 13, WED 14, THU 15, FRI 16) */}
-          <div className="flex gap-2.5 overflow-x-auto no-scrollbar pb-2 mb-3">
+          {/* Days Horizontal Picker */}
+          <div className="flex gap-2 overflow-x-auto no-scrollbar pb-2 mb-3">
             {pg.weeklyFoodMenu.map((item, idx) => {
               const isSelected = selectedDayIndex === idx;
 
@@ -415,20 +415,20 @@ export const PGDetailModal: React.FC<PGDetailModalProps> = ({
                 <button
                   key={item.day}
                   onClick={() => setSelectedDayIndex(idx)}
-                  className={`flex flex-col items-center justify-center min-w-[58px] py-2 px-1.5 rounded-2xl border transition-all ${
+                  className={`flex flex-col items-center justify-center min-w-[54px] py-2 px-1 rounded-lg border transition-all ${
                     isSelected
-                      ? 'bg-purple-600 text-white border-purple-600 shadow-md shadow-purple-200 scale-105'
-                      : 'bg-white text-slate-700 border-slate-200 hover:bg-purple-50 hover:border-purple-200'
+                      ? 'bg-blue-600 text-white border-blue-600 shadow-sm scale-105'
+                      : 'bg-white text-slate-700 border-slate-200 hover:bg-blue-50 hover:border-blue-200'
                   }`}
                 >
                   <span
                     className={`text-[10px] font-bold tracking-wider uppercase ${
-                      isSelected ? 'text-purple-100' : 'text-slate-400'
+                      isSelected ? 'text-blue-100' : 'text-slate-400'
                     }`}
                   >
                     {item.day}
                   </span>
-                  <span className="text-base font-black mt-0.5">{item.dateNum}</span>
+                  <span className="text-base font-bold mt-0.5">{item.dateNum}</span>
                 </button>
               );
             })}
@@ -437,9 +437,9 @@ export const PGDetailModal: React.FC<PGDetailModalProps> = ({
           {/* Meal Details Cards matching screenshot icons: Breakfast (Sunrise), Lunch (Sun), Dinner (Moon) */}
           <div className="space-y-2.5">
             {/* Breakfast Card */}
-            <div className="bg-white rounded-2xl p-3.5 border border-slate-200/80 shadow-sm flex items-start gap-3.5">
-              <div className="w-11 h-11 rounded-xl bg-purple-600 text-white flex items-center justify-center shrink-0 shadow-sm">
-                <Sunrise className="w-6 h-6" />
+            <div className="bg-white rounded-xl p-3.5 border border-slate-200 shadow-sm flex items-start gap-3.5">
+              <div className="w-10 h-10 rounded-lg bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-sm">
+                <Sunrise className="w-5 h-5" />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between">
@@ -447,7 +447,7 @@ export const PGDetailModal: React.FC<PGDetailModalProps> = ({
                     Breakfast ({currentDayMenu.breakfast.time})
                   </div>
                   {currentDayMenu.breakfast.boxAvailable && (
-                    <span className="text-[10px] font-semibold text-purple-600 bg-purple-50 px-1.5 py-0.5 rounded">
+                    <span className="text-[10px] font-semibold text-blue-700 bg-blue-50 border border-blue-100 px-1.5 py-0.5 rounded">
                       Box Ready
                     </span>
                   )}
@@ -459,9 +459,9 @@ export const PGDetailModal: React.FC<PGDetailModalProps> = ({
             </div>
 
             {/* Lunch Card */}
-            <div className="bg-white rounded-2xl p-3.5 border border-slate-200/80 shadow-sm flex items-start gap-3.5">
-              <div className="w-11 h-11 rounded-xl bg-purple-600 text-white flex items-center justify-center shrink-0 shadow-sm">
-                <Sun className="w-6 h-6" />
+            <div className="bg-white rounded-xl p-3.5 border border-slate-200 shadow-sm flex items-start gap-3.5">
+              <div className="w-10 h-10 rounded-lg bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-sm">
+                <Sun className="w-5 h-5" />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between">
@@ -477,9 +477,9 @@ export const PGDetailModal: React.FC<PGDetailModalProps> = ({
             </div>
 
             {/* Dinner Card */}
-            <div className="bg-white rounded-2xl p-3.5 border border-slate-200/80 shadow-sm flex items-start gap-3.5">
-              <div className="w-11 h-11 rounded-xl bg-purple-600 text-white flex items-center justify-center shrink-0 shadow-sm">
-                <Moon className="w-6 h-6" />
+            <div className="bg-white rounded-xl p-3.5 border border-slate-200 shadow-sm flex items-start gap-3.5">
+              <div className="w-10 h-10 rounded-lg bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-sm">
+                <Moon className="w-5 h-5" />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between">
@@ -496,11 +496,11 @@ export const PGDetailModal: React.FC<PGDetailModalProps> = ({
           </div>
         </section>
 
-        {/* Section 3: Security & Amenities Grid matching screenshot (Biometric, CCTV, Wifi, Washing Machine, Security Guard, RO Water) */}
+        {/* Section 3: Security & Amenities Grid */}
         <section id="section-security-amenities" className="px-4 py-4">
           <div className="flex items-center gap-2 mb-3">
-            <ShieldCheck className="w-5 h-5 text-purple-600" />
-            <h3 className="text-base font-extrabold text-slate-900 tracking-tight">
+            <ShieldCheck className="w-5 h-5 text-blue-600" />
+            <h3 className="text-base font-bold text-slate-900 tracking-tight">
               Security & Amenities
             </h3>
           </div>
@@ -510,9 +510,9 @@ export const PGDetailModal: React.FC<PGDetailModalProps> = ({
             {pg.amenities.map((amenity) => (
               <div
                 key={amenity.id}
-                className="bg-white rounded-2xl p-3 border border-slate-200/80 shadow-sm flex items-center gap-3 hover:border-purple-300 transition-colors"
+                className="bg-white rounded-xl p-3 border border-slate-200 shadow-sm flex items-center gap-3 hover:border-slate-300 transition-colors"
               >
-                <div className="w-9 h-9 rounded-xl bg-purple-50 flex items-center justify-center shrink-0">
+                <div className="w-9 h-9 rounded-lg bg-blue-50 flex items-center justify-center shrink-0">
                   {getAmenityIcon(amenity.icon)}
                 </div>
                 <span className="text-xs font-semibold text-slate-800 leading-tight">
@@ -523,16 +523,16 @@ export const PGDetailModal: React.FC<PGDetailModalProps> = ({
           </div>
         </section>
 
-        {/* Section 4: Resident Reviews (matching screenshot: Arjun k. / Rakesh k. ✓ Current Resident ⭐ 4.3) */}
+        {/* Section 4: Resident Reviews */}
         <section id="section-resident-reviews" className="px-4 py-4">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <MessageCircle className="w-5 h-5 text-purple-600" />
-              <h3 className="text-base font-extrabold text-slate-900 tracking-tight">
+              <MessageCircle className="w-5 h-5 text-blue-600" />
+              <h3 className="text-base font-bold text-slate-900 tracking-tight">
                 Resident Reviews
               </h3>
             </div>
-            <div className="flex items-center gap-1 text-xs font-bold text-amber-500 bg-amber-50 px-2 py-0.5 rounded-full">
+            <div className="flex items-center gap-1 text-xs font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
               <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
               <span>4.3 (132)</span>
             </div>
@@ -543,12 +543,12 @@ export const PGDetailModal: React.FC<PGDetailModalProps> = ({
             {(showAllReviews ? pg.reviews : pg.reviews.slice(0, 2)).map((review) => (
               <div
                 key={review.id}
-                className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm relative"
+                className="bg-white rounded-xl p-4 border border-slate-200 shadow-sm relative"
               >
                 {/* Header: Avatar, Name, Verified Resident Badge, Star */}
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-rose-500 to-amber-500 text-white font-bold text-xs flex items-center justify-center shadow-sm">
+                    <div className="w-8 h-8 rounded-full bg-blue-600 text-white font-bold text-xs flex items-center justify-center shadow-sm">
                       {review.authorName.charAt(0)}
                     </div>
                     <div>
@@ -562,7 +562,7 @@ export const PGDetailModal: React.FC<PGDetailModalProps> = ({
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-1 text-xs font-bold text-amber-500 bg-amber-50 px-2 py-0.5 rounded-full">
+                  <div className="flex items-center gap-1 text-xs font-bold text-amber-500 bg-amber-50 px-2 py-0.5 rounded">
                     <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
                     <span>{review.rating}</span>
                   </div>
@@ -576,12 +576,12 @@ export const PGDetailModal: React.FC<PGDetailModalProps> = ({
             ))}
           </div>
 
-          {/* View More Reviews Button matching screenshot */}
+          {/* View More Reviews Button */}
           <div className="mt-4 flex flex-col items-center gap-2">
             <button
               id="btn-view-more-reviews"
               onClick={() => setShowAllReviews(!showAllReviews)}
-              className="w-full py-3 bg-purple-500 hover:bg-purple-600 text-white font-bold text-xs rounded-2xl shadow-sm transition-colors"
+              className="w-full py-2.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-800 font-semibold text-xs rounded-lg shadow-sm transition-colors"
             >
               {showAllReviews ? 'Show Fewer Reviews' : 'View more Reviews'}
             </button>
@@ -589,7 +589,7 @@ export const PGDetailModal: React.FC<PGDetailModalProps> = ({
             {onOpenWriteReview && (
               <button
                 onClick={onOpenWriteReview}
-                className="text-xs font-semibold text-purple-600 hover:text-purple-700 py-1"
+                className="text-xs font-semibold text-blue-600 hover:text-blue-700 py-1"
               >
                 + Write a Verified Review
               </button>
@@ -597,23 +597,23 @@ export const PGDetailModal: React.FC<PGDetailModalProps> = ({
           </div>
         </section>
 
-        {/* Sticky Bottom Booking Bar matching screenshot: Monthly Rent 10000 ₹/month + Book Now > */}
+        {/* Sticky Bottom Booking Bar */}
         <div className="fixed bottom-0 left-0 right-0 z-50 flex justify-center pointer-events-none">
-          <div className="w-full max-w-md bg-white border-t border-slate-200/80 px-4 py-3 shadow-2xl flex items-center justify-between pointer-events-auto">
+          <div className="w-full max-w-md bg-white border-t border-slate-200 px-4 py-3 shadow-lg flex items-center justify-between pointer-events-auto">
             <div>
-              <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-tight">
+              <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
                 Monthly Rent
               </div>
-              <div className="text-xl font-black text-purple-700">
-                {effectivePrice} ₹<span className="text-xs font-semibold text-slate-500">/month</span>
+              <div className="text-xl font-black text-slate-900">
+                {effectivePrice} ₹<span className="text-xs font-medium text-slate-500">/mo</span>
               </div>
             </div>
 
-            {/* Book Now Button matching screenshot (Purple gradient with right arrow) */}
+            {/* Book Now Button */}
             <button
               id="btn-book-now-bottom"
               onClick={() => onBookNow(pg, selectedBed)}
-              className="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white text-sm font-extrabold rounded-2xl shadow-lg shadow-purple-500/30 flex items-center gap-2 transition-all active:scale-95 cursor-pointer"
+              className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg shadow-sm flex items-center gap-2 transition-all active:scale-95 cursor-pointer"
             >
               <span>Book Now</span>
               <ChevronRight className="w-4 h-4" />

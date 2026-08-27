@@ -220,9 +220,9 @@ export default function App() {
   const unreadNotificationsCount = notifications.filter((n) => !n.read).length;
 
   return (
-    <div className="min-h-screen bg-slate-100 flex justify-center text-slate-800 antialiased font-sans selection:bg-purple-500 selection:text-white">
+    <div className="min-h-screen bg-slate-100 flex justify-center text-slate-900 antialiased font-sans selection:bg-blue-600 selection:text-white">
       {/* Mobile Frame Container (centered for preview, full on mobile) */}
-      <main className="w-full max-w-md bg-[#FAF9FD] min-h-screen relative flex flex-col shadow-2xl overflow-x-hidden">
+      <main className="w-full max-w-md bg-slate-50 min-h-screen relative flex flex-col shadow-2xl border-x border-slate-200/60 overflow-x-hidden">
         {/* Top App Header */}
         <Header
           unreadNotificationCount={unreadNotificationsCount}
@@ -288,15 +288,15 @@ export default function App() {
                   )}
                 </h2>
 
-                <span className="text-xs font-semibold text-purple-600">
+                <span className="text-xs font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100">
                   {filteredListings.length} Available
                 </span>
               </div>
 
               {/* Listings Stack */}
               {filteredListings.length === 0 ? (
-                <div className="bg-white rounded-3xl p-8 text-center border border-slate-200 shadow-sm space-y-2">
-                  <div className="w-12 h-12 bg-purple-50 text-purple-600 rounded-full flex items-center justify-center mx-auto">
+                <div className="bg-white rounded-2xl p-8 text-center border border-slate-200 shadow-sm space-y-2">
+                  <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto">
                     <Search className="w-6 h-6" />
                   </div>
                   <h3 className="font-bold text-sm text-slate-800">No Accommodations Found</h3>
@@ -305,7 +305,7 @@ export default function App() {
                   </p>
                   <button
                     onClick={handleResetFilters}
-                    className="px-4 py-2 bg-purple-600 text-white rounded-xl text-xs font-bold shadow-sm mt-2"
+                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold shadow-sm transition-colors mt-2"
                   >
                     Reset All Filters
                   </button>

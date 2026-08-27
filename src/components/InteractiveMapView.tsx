@@ -205,15 +205,14 @@ export const InteractiveMapView: React.FC<InteractiveMapViewProps> = ({
             </text>
 
             {/* User GPS Location Marker */}
-            <circle cx="110" cy="190" r="32" fill="#7C3AED" fillOpacity="0.12" />
-            <circle cx="110" cy="190" r="14" fill="#7C3AED" fillOpacity="0.25" />
-            <circle cx="110" cy="190" r="6" fill="#6D28D9" stroke="#FFFFFF" strokeWidth="2" />
+            <circle cx="110" cy="190" r="32" fill="#2563EB" fillOpacity="0.12" />
+            <circle cx="110" cy="190" r="14" fill="#2563EB" fillOpacity="0.25" />
+            <circle cx="110" cy="190" r="6" fill="#1D4ED8" stroke="#FFFFFF" strokeWidth="2" />
           </svg>
 
           {/* Interactive HTML Map Pins placed on SVG coordinates */}
-          {listings.map((pg, index) => {
+          {listings.map((pg) => {
             const isSelected = selectedPG?.id === pg.id;
-            const isFav = favorites.includes(pg.id);
 
             // Default fallback position if lat/lng math needed
             const pos = getCoordinatesPosition(pg.coordinates.lat, pg.coordinates.lng);
@@ -228,19 +227,19 @@ export const InteractiveMapView: React.FC<InteractiveMapViewProps> = ({
                   top: `${pos.y + 60}px`,
                 }}
                 className={`absolute -translate-x-1/2 -translate-y-1/2 cursor-pointer transition-all duration-200 z-10 ${
-                  isSelected ? 'scale-115 z-30' : 'hover:scale-110'
+                  isSelected ? 'scale-110 z-30' : 'hover:scale-105'
                 }`}
               >
                 <div
-                  className={`flex items-center gap-1 px-2.5 py-1.5 rounded-full shadow-lg font-bold text-xs border transition-all ${
+                  className={`flex items-center gap-1 px-2.5 py-1.5 rounded-full shadow-md font-bold text-xs border transition-all ${
                     isSelected
-                      ? 'bg-purple-700 text-white border-white ring-4 ring-purple-400/40'
-                      : 'bg-white text-slate-800 border-purple-200 hover:bg-purple-50'
+                      ? 'bg-blue-600 text-white border-white ring-4 ring-blue-500/30'
+                      : 'bg-white text-slate-800 border-slate-300 hover:bg-slate-50'
                   }`}
                 >
                   <MapPin
                     className={`w-3.5 h-3.5 ${
-                      isSelected ? 'text-white' : 'text-purple-600'
+                      isSelected ? 'text-white' : 'text-blue-600'
                     }`}
                   />
                   <span>₹{(pg.pricePerMonth / 1000).toFixed(0)}k</span>
@@ -254,11 +253,11 @@ export const InteractiveMapView: React.FC<InteractiveMapViewProps> = ({
         {selectedPG && (
           <div
             id="map-selected-pg-drawer"
-            className="absolute bottom-4 left-4 right-4 z-30 bg-white rounded-3xl p-3.5 shadow-2xl border border-slate-200/80 animate-in slide-in-from-bottom-6 duration-200"
+            className="absolute bottom-4 left-4 right-4 z-30 bg-white rounded-xl p-3.5 shadow-xl border border-slate-200 animate-in slide-in-from-bottom-6 duration-200"
           >
             <div className="flex gap-3 items-center">
               {/* Photo */}
-              <div className="relative w-24 h-24 rounded-2xl overflow-hidden bg-slate-100 shrink-0">
+              <div className="relative w-24 h-24 rounded-lg overflow-hidden bg-slate-100 shrink-0">
                 <img
                   src={selectedPG.images[0]}
                   alt={selectedPG.name}
@@ -273,11 +272,11 @@ export const InteractiveMapView: React.FC<InteractiveMapViewProps> = ({
               <div className="flex-1 min-w-0">
                 <div className="flex items-start justify-between gap-1">
                   <div>
-                    <h3 className="font-extrabold text-sm text-slate-900 truncate">
+                    <h3 className="font-bold text-sm text-slate-900 truncate">
                       {selectedPG.name}
                     </h3>
                     <div className="flex items-center gap-1 text-[11px] text-slate-500 truncate">
-                      <MapPin className="w-3 h-3 text-purple-600 shrink-0" />
+                      <MapPin className="w-3 h-3 text-blue-600 shrink-0" />
                       <span>{selectedPG.area}, Ahmedabad</span>
                     </div>
                   </div>
@@ -300,15 +299,15 @@ export const InteractiveMapView: React.FC<InteractiveMapViewProps> = ({
                 <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-100">
                   <div>
                     <div className="text-[10px] text-slate-400 font-semibold">Rent</div>
-                    <div className="text-sm font-black text-purple-700">
-                      ₹{selectedPG.pricePerMonth.toLocaleString()}/m
+                    <div className="text-sm font-black text-slate-900">
+                      ₹{selectedPG.pricePerMonth.toLocaleString()}/mo
                     </div>
                   </div>
 
                   <button
                     id="btn-map-view-details"
                     onClick={() => onSelectPG(selectedPG)}
-                    className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold rounded-xl shadow-sm flex items-center gap-1 transition-all"
+                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg shadow-sm flex items-center gap-1 transition-all"
                   >
                     <span>View Details</span>
                     <ChevronRight className="w-3.5 h-3.5" />

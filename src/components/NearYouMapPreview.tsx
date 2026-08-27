@@ -23,7 +23,7 @@ export const NearYouMapPreview: React.FC<NearYouMapPreviewProps> = ({
       <div
         id="card-map-preview"
         onClick={onOpenMap}
-        className="relative rounded-2xl overflow-hidden border border-purple-200/80 shadow-sm bg-gradient-to-br from-slate-50 to-purple-50/40 cursor-pointer group hover:shadow-md transition-all duration-300"
+        className="relative rounded-xl overflow-hidden border border-slate-200 shadow-sm bg-slate-50 cursor-pointer group hover:shadow-md hover:border-slate-300 transition-all duration-300"
       >
         {/* Stylized Vector Map Graphics with Road Network & Pin Highlights */}
         <div className="relative h-44 w-full bg-[#EBF2F7] overflow-hidden">
@@ -118,13 +118,13 @@ export const NearYouMapPreview: React.FC<NearYouMapPreviewProps> = ({
             </text>
 
             {/* Radar / Pulse on User Location */}
-            <circle cx="110" cy="70" r="16" fill="#7C3AED" fillOpacity="0.15" />
-            <circle cx="110" cy="70" r="8" fill="#7C3AED" fillOpacity="0.3" />
-            <circle cx="110" cy="70" r="4" fill="#6D28D9" />
+            <circle cx="110" cy="70" r="16" fill="#2563EB" fillOpacity="0.15" />
+            <circle cx="110" cy="70" r="8" fill="#2563EB" fillOpacity="0.3" />
+            <circle cx="110" cy="70" r="4" fill="#1D4ED8" />
 
             {/* PG Pin 1 (Raj PG) */}
             <g transform="translate(100, 50)">
-              <rect x="0" y="0" width="46" height="18" rx="9" fill="#6D28D9" />
+              <rect x="0" y="0" width="46" height="18" rx="9" fill="#2563EB" stroke="#FFFFFF" strokeWidth="1.5" />
               <text x="23" y="12" fill="#FFFFFF" fontSize="8.5" fontWeight="bold" textAnchor="middle">
                 ₹10k
               </text>
@@ -132,7 +132,7 @@ export const NearYouMapPreview: React.FC<NearYouMapPreviewProps> = ({
 
             {/* PG Pin 2 (Darshan PG) */}
             <g transform="translate(75, 95)">
-              <rect x="0" y="0" width="48" height="18" rx="9" fill="#4F46E5" />
+              <rect x="0" y="0" width="48" height="18" rx="9" fill="#1D4ED8" stroke="#FFFFFF" strokeWidth="1.5" />
               <text x="24" y="12" fill="#FFFFFF" fontSize="8.5" fontWeight="bold" textAnchor="middle">
                 ₹12.5k
               </text>
@@ -140,7 +140,7 @@ export const NearYouMapPreview: React.FC<NearYouMapPreviewProps> = ({
 
             {/* PG Pin 3 (Sarda PG) */}
             <g transform="translate(180, 110)">
-              <rect x="0" y="0" width="44" height="18" rx="9" fill="#7C3AED" />
+              <rect x="0" y="0" width="44" height="18" rx="9" fill="#2563EB" stroke="#FFFFFF" strokeWidth="1.5" />
               <text x="22" y="12" fill="#FFFFFF" fontSize="8.5" fontWeight="bold" textAnchor="middle">
                 ₹8.5k
               </text>
@@ -148,7 +148,7 @@ export const NearYouMapPreview: React.FC<NearYouMapPreviewProps> = ({
 
             {/* PG Pin 4 (Shreeji) */}
             <g transform="translate(230, 70)">
-              <rect x="0" y="0" width="44" height="18" rx="9" fill="#9333EA" />
+              <rect x="0" y="0" width="44" height="18" rx="9" fill="#3B82F6" stroke="#FFFFFF" strokeWidth="1.5" />
               <text x="22" y="12" fill="#FFFFFF" fontSize="8.5" fontWeight="bold" textAnchor="middle">
                 ₹11k
               </text>
@@ -156,25 +156,25 @@ export const NearYouMapPreview: React.FC<NearYouMapPreviewProps> = ({
           </svg>
 
           {/* Current location tag badge */}
-          <div className="absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1 bg-white/90 backdrop-blur-sm rounded-full text-[11px] font-semibold text-slate-800 shadow-sm border border-slate-200/60">
-            <Navigation className="w-3 h-3 text-purple-600 fill-purple-600" />
+          <div className="absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1 bg-white/95 backdrop-blur-sm rounded-md text-[11px] font-semibold text-slate-800 shadow-sm border border-slate-200">
+            <Navigation className="w-3 h-3 text-blue-600 fill-blue-600" />
             <span>Thaltej, Ahmedabad</span>
           </div>
 
           {/* Bottom Overlay Pill matching design */}
           <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between pointer-events-none">
-            <div className="bg-white/95 backdrop-blur-md px-3.5 py-2 rounded-xl shadow-sm border border-slate-200/70">
-              <div className="text-[11px] font-medium text-slate-500">
-                {listingsCount} PGs near by you
+            <div className="bg-white/95 backdrop-blur-md px-3.5 py-2 rounded-lg shadow-sm border border-slate-200">
+              <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+                {listingsCount} Verified PGs nearby
               </div>
-              <div className="text-sm font-extrabold text-purple-700 tracking-tight flex items-center gap-1">
-                <MapPin className="w-3.5 h-3.5 text-purple-600" />
-                <span>Explore Area</span>
+              <div className="text-sm font-bold text-blue-600 tracking-tight flex items-center gap-1">
+                <MapPin className="w-3.5 h-3.5 text-blue-600" />
+                <span>Explore on Map</span>
               </div>
             </div>
 
-            {/* Purple Circular Action Button */}
-            <div className="w-12 h-12 rounded-full bg-purple-600 group-hover:bg-purple-700 text-white flex items-center justify-center shadow-lg shadow-purple-500/30 group-hover:scale-105 transition-all">
+            {/* Blue Circular Action Button */}
+            <div className="w-10 h-10 rounded-lg bg-blue-600 group-hover:bg-blue-700 text-white flex items-center justify-center shadow-md group-hover:scale-105 transition-all">
               <ArrowRight className="w-5 h-5" />
             </div>
           </div>

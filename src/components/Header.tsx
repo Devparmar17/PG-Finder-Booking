@@ -26,7 +26,7 @@ export const Header: React.FC<HeaderProps> = ({
         <button
           id="btn-user-avatar"
           onClick={onOpenProfile}
-          className="relative rounded-full ring-2 ring-purple-400/40 p-0.5 hover:scale-105 transition-transform"
+          className="relative rounded-full ring-2 ring-blue-500/30 p-0.5 hover:scale-105 transition-transform"
           aria-label="Open profile"
         >
           <img
@@ -38,11 +38,11 @@ export const Header: React.FC<HeaderProps> = ({
         </button>
 
         <div>
-          <div className="text-xs font-medium text-slate-500 tracking-tight">Hello</div>
+          <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Hello</div>
           <div className="text-base font-bold text-slate-900 tracking-tight flex items-center gap-1.5">
             <span>{INITIAL_USER.name}</span>
-            <span className="inline-block px-1.5 py-0.5 text-[10px] font-semibold bg-purple-100 text-purple-700 rounded-full">
-              Resident
+            <span className="inline-block px-2 py-0.5 text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200 rounded-md uppercase tracking-wider">
+              Verified
             </span>
           </div>
         </div>
@@ -52,10 +52,10 @@ export const Header: React.FC<HeaderProps> = ({
       <div className="flex items-center gap-2.5">
         {/* City picker dropdown */}
         <div className="relative group">
-          <div className="flex items-center gap-1 px-2.5 py-1 bg-slate-100/90 hover:bg-slate-200/80 rounded-full text-xs font-medium text-slate-700 transition-colors cursor-pointer">
-            <MapPin className="w-3.5 h-3.5 text-purple-600" />
+          <div className="flex items-center gap-1 px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-semibold text-slate-700 shadow-sm transition-colors cursor-pointer hover:border-slate-300">
+            <MapPin className="w-3.5 h-3.5 text-blue-600" />
             <span>{selectedCity}</span>
-            <ChevronDown className="w-3 h-3 text-slate-500" />
+            <ChevronDown className="w-3 h-3 text-slate-400" />
           </div>
           <select
             id="select-city-dropdown"
@@ -76,12 +76,12 @@ export const Header: React.FC<HeaderProps> = ({
         <button
           id="btn-notifications-bell"
           onClick={onOpenNotifications}
-          className="relative p-2.5 rounded-full bg-white shadow-sm border border-slate-200/70 text-slate-700 hover:text-purple-600 hover:border-purple-200 transition-colors"
+          className="relative p-2.5 rounded-lg bg-white shadow-sm border border-slate-200 text-slate-700 hover:text-blue-600 hover:border-blue-300 transition-colors"
           aria-label="View notifications"
         >
-          <Bell className="w-5 h-5 text-purple-600" />
+          <Bell className="w-4 h-4 text-slate-600" />
           {unreadNotificationCount > 0 && (
-            <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-red-500 rounded-full ring-2 ring-white animate-pulse" />
+            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-blue-600 rounded-full ring-2 ring-white" />
           )}
         </button>
       </div>

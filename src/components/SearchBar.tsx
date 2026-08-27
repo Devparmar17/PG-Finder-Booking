@@ -17,14 +17,14 @@ export const SearchBar: React.FC<SearchBarProps> = ({
   return (
     <div id="search-section" className="px-4 pt-1 pb-3">
       {/* Hero Title */}
-      <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight mb-3">
-        Find Your <span className="text-purple-600 font-black">PG</span>
+      <h1 className="text-2xl font-bold text-slate-900 tracking-tight mb-3">
+        Find Your <span className="text-blue-600 font-extrabold">PG</span>
       </h1>
 
       {/* Search Input Box */}
       <div className="relative flex items-center">
-        <div className="absolute left-3.5 text-purple-600 flex items-center pointer-events-none">
-          <Home className="w-5 h-5" />
+        <div className="absolute left-3.5 text-blue-600 flex items-center pointer-events-none">
+          <Home className="w-5 h-5 text-blue-600" />
         </div>
 
         <input
@@ -33,7 +33,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
           placeholder="Search by location, area, or landmark"
-          className="w-full pl-11 pr-10 py-3 bg-white border border-slate-200/80 rounded-xl text-sm font-medium text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 shadow-sm transition-all"
+          className="w-full pl-11 pr-10 py-2.5 bg-white border border-slate-300 rounded-lg text-sm font-medium text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 shadow-sm transition-all"
         />
 
         {searchQuery ? (
@@ -54,7 +54,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
 
       {/* Quick Location Pills */}
       <div className="flex items-center gap-1.5 mt-2.5 overflow-x-auto no-scrollbar py-0.5 text-xs">
-        <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider shrink-0 mr-1">
+        <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider shrink-0 mr-1">
           Popular:
         </span>
         {quickLocations.map((loc) => (
@@ -64,10 +64,10 @@ export const SearchBar: React.FC<SearchBarProps> = ({
               onSearchChange(loc);
               onLocationTagClick?.(loc);
             }}
-            className={`px-2.5 py-1 rounded-full font-medium transition-all shrink-0 ${
+            className={`px-2.5 py-1 rounded-md font-medium transition-all shrink-0 text-[11px] ${
               searchQuery.toLowerCase().includes(loc.toLowerCase())
-                ? 'bg-purple-600 text-white shadow-sm'
-                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                ? 'bg-blue-600 text-white shadow-sm font-semibold'
+                : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900'
             }`}
           >
             {loc}

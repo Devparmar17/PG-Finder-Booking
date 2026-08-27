@@ -93,49 +93,49 @@ export const ResidentManagementView: React.FC<ResidentManagementViewProps> = ({
   return (
     <div id="resident-management-view" className="space-y-4 pb-24 animate-in fade-in duration-200">
       {/* Top Banner Card */}
-      <div className="mx-4 bg-gradient-to-br from-purple-800 to-indigo-900 text-white rounded-3xl p-5 shadow-xl relative overflow-hidden">
+      <div className="mx-4 bg-slate-900 text-white rounded-xl p-5 shadow-md relative overflow-hidden border border-slate-800">
         <div className="flex items-start justify-between">
           <div>
-            <div className="flex items-center gap-1.5 text-purple-200 text-xs font-bold uppercase tracking-wider mb-1">
+            <div className="flex items-center gap-1.5 text-blue-400 text-xs font-semibold uppercase tracking-wider mb-1">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
               <span>Active Resident Stay</span>
             </div>
-            <h1 className="text-xl font-black">{activeBooking.pgName}</h1>
-            <p className="text-xs text-purple-200">{activeBooking.pgLocation}</p>
+            <h1 className="text-xl font-bold">{activeBooking.pgName}</h1>
+            <p className="text-xs text-slate-400">{activeBooking.pgLocation}</p>
           </div>
 
-          <div className="p-2.5 bg-white/10 backdrop-blur-md rounded-2xl text-center">
-            <div className="text-[10px] text-purple-200 uppercase font-bold">Room & Bed</div>
-            <div className="text-sm font-black mt-0.5">
+          <div className="p-2.5 bg-slate-800/90 border border-slate-700/60 rounded-lg text-center">
+            <div className="text-[10px] text-slate-400 uppercase font-semibold">Room & Bed</div>
+            <div className="text-sm font-bold text-white mt-0.5">
               {activeBooking.roomNumber} - {activeBooking.bedNumber}
             </div>
           </div>
         </div>
 
         {/* Quick Credentials Bar */}
-        <div className="grid grid-cols-2 gap-2 mt-4 pt-3 border-t border-white/15 text-xs">
-          <div className="bg-white/10 backdrop-blur-sm rounded-xl p-2 flex items-center justify-between">
+        <div className="grid grid-cols-2 gap-2 mt-4 pt-3 border-t border-slate-800 text-xs">
+          <div className="bg-slate-800/70 border border-slate-700/50 rounded-lg p-2.5 flex items-center justify-between">
             <div>
-              <div className="text-[10px] text-purple-200">Wi-Fi: Fast_5G</div>
-              <div className="font-mono font-bold text-xs">{activeBooking.wifiCredentials?.pass}</div>
+              <div className="text-[10px] text-slate-400">Wi-Fi: Fast_5G</div>
+              <div className="font-mono font-bold text-xs text-slate-100">{activeBooking.wifiCredentials?.pass}</div>
             </div>
             <button
               onClick={handleCopyWifi}
-              className="p-1 rounded-lg hover:bg-white/20 text-white"
+              className="p-1 rounded hover:bg-slate-700 text-slate-300 transition-colors"
               title="Copy password"
             >
-              {copiedWifi ? <Check className="w-4 h-4 text-emerald-300" /> : <Copy className="w-4 h-4" />}
+              {copiedWifi ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
             </button>
           </div>
 
-          <div className="bg-white/10 backdrop-blur-sm rounded-xl p-2 flex items-center justify-between">
+          <div className="bg-slate-800/70 border border-slate-700/50 rounded-lg p-2.5 flex items-center justify-between">
             <div>
-              <div className="text-[10px] text-purple-200">Smart Gate Entry</div>
-              <div className="font-mono font-bold text-xs text-emerald-300">
+              <div className="text-[10px] text-slate-400">Smart Gate Entry</div>
+              <div className="font-mono font-bold text-xs text-blue-400">
                 {activeBooking.biometricId}
               </div>
             </div>
-            <QrCode className="w-4 h-4 text-purple-200" />
+            <QrCode className="w-4 h-4 text-slate-400" />
           </div>
         </div>
       </div>
@@ -151,10 +151,10 @@ export const ResidentManagementView: React.FC<ResidentManagementViewProps> = ({
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id as any)}
-            className={`px-3.5 py-2 rounded-xl text-xs font-bold shrink-0 transition-all ${
+            className={`px-3.5 py-2 rounded-lg text-xs font-semibold shrink-0 transition-all ${
               activeTab === tab.id
-                ? 'bg-purple-600 text-white shadow-sm'
-                : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+                ? 'bg-blue-600 text-white shadow-sm'
+                : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'
             }`}
           >
             {tab.label}
@@ -166,10 +166,10 @@ export const ResidentManagementView: React.FC<ResidentManagementViewProps> = ({
       {activeTab === 'overview' && (
         <div className="px-4 space-y-3.5 animate-in fade-in duration-150">
           {/* Quick Rent Due Card */}
-          <div className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm flex items-center justify-between">
+          <div className="bg-white rounded-xl p-4 border border-slate-200 shadow-sm flex items-center justify-between">
             <div>
               <div className="text-xs text-slate-500 font-medium">Next Rent Due</div>
-              <div className="text-base font-extrabold text-slate-900">
+              <div className="text-base font-bold text-slate-900">
                 ₹{activeBooking.monthlyRent.toLocaleString()}
                 <span className="text-xs font-normal text-slate-500"> on 1st of month</span>
               </div>
@@ -177,7 +177,7 @@ export const ResidentManagementView: React.FC<ResidentManagementViewProps> = ({
 
             <button
               onClick={() => setActiveTab('rent')}
-              className="px-4 py-2 bg-purple-50 text-purple-700 hover:bg-purple-100 rounded-xl text-xs font-bold flex items-center gap-1"
+              className="px-3.5 py-1.5 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-lg text-xs font-semibold flex items-center gap-1 border border-blue-100 transition-colors"
             >
               <span>View Ledger</span>
               <ChevronRight className="w-3.5 h-3.5" />
@@ -191,29 +191,29 @@ export const ResidentManagementView: React.FC<ResidentManagementViewProps> = ({
                 setActiveTab('maintenance');
                 setShowNewTicketModal(true);
               }}
-              className="p-3.5 bg-white rounded-2xl border border-slate-200/80 shadow-sm hover:border-purple-300 text-left transition-all group"
+              className="p-3.5 bg-white rounded-xl border border-slate-200 shadow-sm hover:border-blue-300 text-left transition-all group"
             >
-              <div className="w-9 h-9 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center mb-2 group-hover:bg-purple-600 group-hover:text-white transition-colors">
+              <div className="w-9 h-9 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center mb-2 group-hover:bg-blue-600 group-hover:text-white transition-colors">
                 <Wrench className="w-4 h-4" />
               </div>
-              <div className="text-xs font-extrabold text-slate-900">Raise Issue</div>
+              <div className="text-xs font-bold text-slate-900">Raise Issue</div>
               <div className="text-[11px] text-slate-500">Plumbing, AC, Wi-Fi</div>
             </button>
 
             <button
               onClick={() => setActiveTab('food')}
-              className="p-3.5 bg-white rounded-2xl border border-slate-200/80 shadow-sm hover:border-purple-300 text-left transition-all group"
+              className="p-3.5 bg-white rounded-xl border border-slate-200 shadow-sm hover:border-blue-300 text-left transition-all group"
             >
-              <div className="w-9 h-9 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center mb-2 group-hover:bg-purple-600 group-hover:text-white transition-colors">
+              <div className="w-9 h-9 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center mb-2 group-hover:bg-blue-600 group-hover:text-white transition-colors">
                 <Sun className="w-4 h-4" />
               </div>
-              <div className="text-xs font-extrabold text-slate-900">Today's Meals</div>
+              <div className="text-xs font-bold text-slate-900">Today's Meals</div>
               <div className="text-[11px] text-slate-500">Live menu & skip rebate</div>
             </button>
           </div>
 
           {/* Manager Contact & SOS */}
-          <div className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm">
+          <div className="bg-white rounded-xl p-4 border border-slate-200 shadow-sm">
             <div className="font-bold text-xs text-slate-900 mb-2.5">
               Property Manager & Emergency
             </div>
@@ -233,7 +233,7 @@ export const ResidentManagementView: React.FC<ResidentManagementViewProps> = ({
               <div className="flex items-center gap-1.5">
                 <a
                   href={`tel:${pgListing?.managerContact.phone || '+919876543210'}`}
-                  className="p-2 rounded-xl bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-colors"
+                  className="p-2 rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200/60 transition-colors"
                   aria-label="Call manager"
                 >
                   <Phone className="w-4 h-4" />
@@ -242,7 +242,7 @@ export const ResidentManagementView: React.FC<ResidentManagementViewProps> = ({
                   href={`https://wa.me/${pgListing?.managerContact.whatsapp || '+919876543210'}`}
                   target="_blank"
                   rel="noreferrer"
-                  className="p-2 rounded-xl bg-purple-50 text-purple-700 hover:bg-purple-100 transition-colors"
+                  className="p-2 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200/60 transition-colors"
                   aria-label="WhatsApp manager"
                 >
                   <MessageCircle className="w-4 h-4" />
@@ -258,7 +258,7 @@ export const ResidentManagementView: React.FC<ResidentManagementViewProps> = ({
         <div className="px-4 space-y-3.5 animate-in fade-in duration-150">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-sm font-extrabold text-slate-900">Today's Live Mess Menu</h2>
+              <h2 className="text-sm font-bold text-slate-900">Today's Live Mess Menu</h2>
               <p className="text-[11px] text-slate-500">Cooked fresh with RO water</p>
             </div>
 
@@ -283,9 +283,9 @@ export const ResidentManagementView: React.FC<ResidentManagementViewProps> = ({
           {/* Meals List */}
           <div className="space-y-2.5">
             {/* Breakfast */}
-            <div className="bg-white rounded-2xl p-3.5 border border-slate-200/80 shadow-sm flex items-start justify-between gap-3">
+            <div className="bg-white rounded-xl p-3.5 border border-slate-200 shadow-sm flex items-start justify-between gap-3">
               <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-xl bg-purple-600 text-white flex items-center justify-center shrink-0">
+                <div className="w-10 h-10 rounded-lg bg-blue-600 text-white flex items-center justify-center shrink-0">
                   <Sunrise className="w-5 h-5" />
                 </div>
                 <div>
@@ -298,7 +298,7 @@ export const ResidentManagementView: React.FC<ResidentManagementViewProps> = ({
 
               <button
                 onClick={() => toggleSkipMeal('breakfast')}
-                className={`px-2.5 py-1 rounded-xl text-[10px] font-bold shrink-0 transition-colors ${
+                className={`px-2.5 py-1 rounded-lg text-[10px] font-semibold shrink-0 transition-colors ${
                   skippedMeals.includes('breakfast')
                     ? 'bg-amber-100 text-amber-800'
                     : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
@@ -309,9 +309,9 @@ export const ResidentManagementView: React.FC<ResidentManagementViewProps> = ({
             </div>
 
             {/* Lunch */}
-            <div className="bg-white rounded-2xl p-3.5 border border-slate-200/80 shadow-sm flex items-start justify-between gap-3">
+            <div className="bg-white rounded-xl p-3.5 border border-slate-200 shadow-sm flex items-start justify-between gap-3">
               <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-xl bg-purple-600 text-white flex items-center justify-center shrink-0">
+                <div className="w-10 h-10 rounded-lg bg-blue-600 text-white flex items-center justify-center shrink-0">
                   <Sun className="w-5 h-5" />
                 </div>
                 <div>
@@ -324,7 +324,7 @@ export const ResidentManagementView: React.FC<ResidentManagementViewProps> = ({
 
               <button
                 onClick={() => toggleSkipMeal('lunch')}
-                className={`px-2.5 py-1 rounded-xl text-[10px] font-bold shrink-0 transition-colors ${
+                className={`px-2.5 py-1 rounded-lg text-[10px] font-semibold shrink-0 transition-colors ${
                   skippedMeals.includes('lunch')
                     ? 'bg-amber-100 text-amber-800'
                     : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
@@ -335,9 +335,9 @@ export const ResidentManagementView: React.FC<ResidentManagementViewProps> = ({
             </div>
 
             {/* Dinner */}
-            <div className="bg-white rounded-2xl p-3.5 border border-slate-200/80 shadow-sm flex items-start justify-between gap-3">
+            <div className="bg-white rounded-xl p-3.5 border border-slate-200 shadow-sm flex items-start justify-between gap-3">
               <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-xl bg-purple-600 text-white flex items-center justify-center shrink-0">
+                <div className="w-10 h-10 rounded-lg bg-blue-600 text-white flex items-center justify-center shrink-0">
                   <Moon className="w-5 h-5" />
                 </div>
                 <div>
@@ -350,7 +350,7 @@ export const ResidentManagementView: React.FC<ResidentManagementViewProps> = ({
 
               <button
                 onClick={() => toggleSkipMeal('dinner')}
-                className={`px-2.5 py-1 rounded-xl text-[10px] font-bold shrink-0 transition-colors ${
+                className={`px-2.5 py-1 rounded-lg text-[10px] font-semibold shrink-0 transition-colors ${
                   skippedMeals.includes('dinner')
                     ? 'bg-amber-100 text-amber-800'
                     : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
@@ -368,14 +368,14 @@ export const ResidentManagementView: React.FC<ResidentManagementViewProps> = ({
         <div className="px-4 space-y-3.5 animate-in fade-in duration-150">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-sm font-extrabold text-slate-900">Maintenance Tickets</h2>
+              <h2 className="text-sm font-bold text-slate-900">Maintenance Tickets</h2>
               <p className="text-[11px] text-slate-500">Track resolution time in real-time</p>
             </div>
 
             <button
               id="btn-raise-ticket-top"
               onClick={() => setShowNewTicketModal(true)}
-              className="px-3 py-1.5 bg-purple-600 text-white rounded-xl text-xs font-bold flex items-center gap-1 shadow-sm hover:bg-purple-700 transition-colors"
+              className="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-xs font-semibold flex items-center gap-1 shadow-sm hover:bg-blue-700 transition-colors"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>Raise Issue</span>
@@ -385,21 +385,21 @@ export const ResidentManagementView: React.FC<ResidentManagementViewProps> = ({
           {/* Tickets List */}
           <div className="space-y-2.5">
             {maintenanceTickets.length === 0 ? (
-              <div className="bg-white rounded-2xl p-6 text-center text-slate-400 text-xs border border-slate-200">
+              <div className="bg-white rounded-xl p-6 text-center text-slate-400 text-xs border border-slate-200">
                 No active maintenance requests. Everything is working smoothly!
               </div>
             ) : (
               maintenanceTickets.map((t) => (
                 <div
                   key={t.id}
-                  className="bg-white rounded-2xl p-3.5 border border-slate-200/80 shadow-sm"
+                  className="bg-white rounded-xl p-3.5 border border-slate-200 shadow-sm"
                 >
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-purple-600">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-blue-600">
                       {t.category} • Room {t.roomNumber}
                     </span>
                     <span
-                      className={`text-[10px] px-2 py-0.5 rounded-full font-bold capitalize ${
+                      className={`text-[10px] px-2 py-0.5 rounded font-semibold capitalize ${
                         t.status === 'resolved'
                           ? 'bg-emerald-100 text-emerald-700'
                           : t.status === 'in_progress'
@@ -428,37 +428,37 @@ export const ResidentManagementView: React.FC<ResidentManagementViewProps> = ({
       {/* TAB 4: Rent Ledger & Direct Payment */}
       {activeTab === 'rent' && (
         <div className="px-4 space-y-3.5 animate-in fade-in duration-150">
-          <div className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm space-y-3">
+          <div className="bg-white rounded-xl p-4 border border-slate-200 shadow-sm space-y-3">
             <div className="flex items-center justify-between">
               <div>
                 <div className="text-xs text-slate-500">Upcoming Month Rent</div>
-                <div className="text-xl font-black text-slate-900">
+                <div className="text-xl font-bold text-slate-900">
                   ₹{activeBooking.monthlyRent.toLocaleString()}
                 </div>
               </div>
 
               <div className="text-right">
-                <div className="text-[10px] font-bold text-purple-600 uppercase">Status</div>
-                <div className="text-xs font-extrabold text-amber-600">Due in 5 Days</div>
+                <div className="text-[10px] font-bold text-blue-600 uppercase">Status</div>
+                <div className="text-xs font-bold text-amber-600">Due in 5 Days</div>
               </div>
             </div>
 
             {/* Zero Hidden Charges Guarantee Badge */}
-            <div className="flex items-center gap-2 p-2 bg-emerald-50 text-emerald-800 rounded-xl text-xs font-semibold">
+            <div className="flex items-center gap-2 p-2.5 bg-emerald-50 text-emerald-800 rounded-lg text-xs font-medium border border-emerald-200/60">
               <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
               <span>Zero hidden charges guaranteed. Receipt issued instantly.</span>
             </div>
 
             <button
               onClick={handlePayRentClick}
-              className="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white font-extrabold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-1.5"
+              className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs rounded-lg shadow-sm transition-all flex items-center justify-center gap-1.5 cursor-pointer"
             >
               <CreditCard className="w-4 h-4" />
               <span>Pay ₹{activeBooking.monthlyRent.toLocaleString()} via Instant UPI</span>
             </button>
 
             {rentPaidSuccess && (
-              <div className="p-2.5 bg-emerald-100 text-emerald-800 rounded-xl text-center text-xs font-bold animate-in fade-in">
+              <div className="p-2.5 bg-emerald-100 text-emerald-800 rounded-lg text-center text-xs font-semibold animate-in fade-in border border-emerald-200">
                 ✓ Rent Paid Successfully! Digital Receipt Generated.
               </div>
             )}
@@ -467,7 +467,7 @@ export const ResidentManagementView: React.FC<ResidentManagementViewProps> = ({
           {/* Past Transactions Ledger */}
           <div className="space-y-2">
             <h3 className="text-xs font-bold text-slate-800">Payment History</h3>
-            <div className="bg-white rounded-2xl p-3 border border-slate-200/80 flex items-center justify-between text-xs">
+            <div className="bg-white rounded-xl p-3 border border-slate-200 flex items-center justify-between text-xs shadow-sm">
               <div>
                 <div className="font-bold text-slate-900">Token Booking Deposit</div>
                 <div className="text-[10px] text-slate-400">
@@ -475,10 +475,10 @@ export const ResidentManagementView: React.FC<ResidentManagementViewProps> = ({
                 </div>
               </div>
               <div className="text-right">
-                <div className="font-extrabold text-slate-900">
+                <div className="font-bold text-slate-900">
                   ₹{activeBooking.tokenPaid.toLocaleString()}
                 </div>
-                <span className="text-[10px] font-bold text-emerald-600">Paid ✓</span>
+                <span className="text-[10px] font-semibold text-emerald-600">Paid ✓</span>
               </div>
             </div>
           </div>
@@ -488,16 +488,16 @@ export const ResidentManagementView: React.FC<ResidentManagementViewProps> = ({
       {/* New Maintenance Ticket Modal */}
       {showNewTicketModal && (
         <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl p-5 w-full max-w-sm shadow-2xl space-y-3.5">
-            <h3 className="font-extrabold text-base text-slate-900">Raise Maintenance Issue</h3>
+          <div className="bg-white rounded-xl p-5 w-full max-w-sm shadow-xl space-y-3.5 border border-slate-200">
+            <h3 className="font-bold text-base text-slate-900">Raise Maintenance Issue</h3>
 
             <form onSubmit={handleCreateTicket} className="space-y-3">
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Category</label>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Category</label>
                 <select
                   value={ticketCategory}
                   onChange={(e) => setTicketCategory(e.target.value as any)}
-                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs"
+                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg text-xs"
                 >
                   <option value="electrical">⚡ Electrical & AC</option>
                   <option value="plumbing">🚰 Plumbing & Water</option>
@@ -509,25 +509,25 @@ export const ResidentManagementView: React.FC<ResidentManagementViewProps> = ({
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Issue Title</label>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Issue Title</label>
                 <input
                   type="text"
                   required
                   placeholder="e.g. AC cooling low in room"
                   value={ticketTitle}
                   onChange={(e) => setTicketTitle(e.target.value)}
-                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs"
+                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg text-xs"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Description</label>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Description</label>
                 <textarea
                   rows={2}
                   placeholder="Provide more details for the technician..."
                   value={ticketDescription}
                   onChange={(e) => setTicketDescription(e.target.value)}
-                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs"
+                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg text-xs"
                 />
               </div>
 
@@ -535,13 +535,13 @@ export const ResidentManagementView: React.FC<ResidentManagementViewProps> = ({
                 <button
                   type="button"
                   onClick={() => setShowNewTicketModal(false)}
-                  className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl"
+                  className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs rounded-lg"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-xl shadow-md"
+                  className="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs rounded-lg shadow-sm"
                 >
                   Submit Ticket
                 </button>

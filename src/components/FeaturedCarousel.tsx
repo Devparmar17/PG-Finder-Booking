@@ -29,7 +29,7 @@ export const FeaturedCarousel: React.FC<FeaturedCarouselProps> = ({
         <button
           id="btn-see-all-featured"
           onClick={onSeeAllClick}
-          className="text-xs font-semibold text-purple-600 hover:text-purple-700 transition-colors"
+          className="text-xs font-semibold text-blue-600 hover:text-blue-700 transition-colors uppercase tracking-wider"
         >
           see all
         </button>
@@ -45,7 +45,7 @@ export const FeaturedCarousel: React.FC<FeaturedCarouselProps> = ({
               key={pg.id}
               id={`featured-card-${pg.id}`}
               onClick={() => onSelectPG(pg)}
-              className="min-w-[260px] max-w-[280px] bg-white rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer snap-start shrink-0 overflow-hidden flex flex-col group"
+              className="min-w-[260px] max-w-[280px] bg-white rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-slate-300 transition-all duration-200 cursor-pointer snap-start shrink-0 overflow-hidden flex flex-col group"
             >
               {/* Image with Badges */}
               <div className="relative h-44 w-full overflow-hidden bg-slate-100">
@@ -57,8 +57,8 @@ export const FeaturedCarousel: React.FC<FeaturedCarouselProps> = ({
 
                 {/* Verified Badge */}
                 {pg.isVerified && (
-                  <div className="absolute top-2.5 left-2.5 flex items-center gap-1 px-2.5 py-1 bg-purple-600/95 backdrop-blur-sm text-white text-[11px] font-bold rounded-full shadow-sm">
-                    <CheckCircle2 className="w-3 h-3 text-white" />
+                  <div className="absolute top-2.5 left-2.5 flex items-center gap-1 px-2 py-0.5 bg-green-50 text-green-700 border border-green-200 text-[10px] font-bold rounded uppercase tracking-wider shadow-sm">
+                    <CheckCircle2 className="w-3 h-3 text-green-600" />
                     <span>Verified</span>
                   </div>
                 )}
@@ -67,7 +67,7 @@ export const FeaturedCarousel: React.FC<FeaturedCarouselProps> = ({
                 <button
                   id={`btn-fav-featured-${pg.id}`}
                   onClick={(e) => onToggleFavorite(pg.id, e)}
-                  className="absolute top-2.5 right-2.5 p-1.5 rounded-full bg-white/85 hover:bg-white text-slate-700 backdrop-blur-sm shadow-sm transition-transform active:scale-90"
+                  className="absolute top-2.5 right-2.5 p-1.5 rounded-full bg-white/90 hover:bg-white text-slate-700 shadow-sm transition-transform active:scale-90"
                   aria-label="Toggle favorite"
                 >
                   <Heart
@@ -78,8 +78,8 @@ export const FeaturedCarousel: React.FC<FeaturedCarouselProps> = ({
                 </button>
 
                 {/* Price Tag Pill on Image */}
-                <div className="absolute bottom-2.5 right-2.5 px-3 py-1 bg-purple-700/90 backdrop-blur-md text-white text-xs font-bold rounded-lg shadow-sm">
-                  ₹ {pg.pricePerMonth.toLocaleString()}/Mo
+                <div className="absolute bottom-2.5 right-2.5 px-2.5 py-1 bg-slate-900/85 backdrop-blur-sm text-white text-xs font-bold rounded-md shadow-sm">
+                  ₹ {pg.pricePerMonth.toLocaleString()}<span className="text-[10px] font-normal text-slate-300">/mo</span>
                 </div>
               </div>
 
@@ -87,7 +87,9 @@ export const FeaturedCarousel: React.FC<FeaturedCarouselProps> = ({
               <div className="p-3.5 flex-1 flex flex-col justify-between">
                 <div>
                   <div className="flex items-center justify-between gap-1 mb-1">
-                    <h3 className="font-bold text-base text-slate-900 truncate">{pg.name}</h3>
+                    <h3 className="font-bold text-base text-slate-900 truncate group-hover:text-blue-600 transition-colors">
+                      {pg.name}
+                    </h3>
                     <div className="flex items-center gap-1 text-amber-500 text-xs font-bold shrink-0">
                       <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
                       <span>{pg.rating}</span>
@@ -95,35 +97,28 @@ export const FeaturedCarousel: React.FC<FeaturedCarouselProps> = ({
                   </div>
 
                   <div className="flex items-center gap-1 text-slate-500 text-xs mb-2.5 truncate">
-                    <MapPin className="w-3.5 h-3.5 text-purple-600 shrink-0" />
+                    <MapPin className="w-3.5 h-3.5 text-blue-600 shrink-0" />
                     <span className="truncate">{pg.location}</span>
                   </div>
                 </div>
 
                 {/* Amenities Icons Row matching screenshot */}
-                <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-purple-600 text-xs">
-                  <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-1 text-slate-600" title="Sharing Available">
-                      <BedDouble className="w-4 h-4 text-purple-600" />
-                      <span className="text-[11px] font-medium text-slate-600">
-                        {pg.sharingOptions[0]?.split(' ')[0]}
-                      </span>
-                    </div>
+                <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
+                  <div className="flex items-center gap-2">
+                    <span className="px-2 py-0.5 bg-slate-100 text-slate-600 text-[10px] font-medium rounded">
+                      {pg.sharingOptions[0]?.split(' ')[0]}
+                    </span>
 
-                    <div className="flex items-center gap-1 text-slate-600" title="High Speed Wi-Fi">
-                      <Wifi className="w-4 h-4 text-purple-600" />
-                      <span className="text-[11px] font-medium text-slate-600">Wi-Fi</span>
-                    </div>
+                    <span className="px-2 py-0.5 bg-slate-100 text-slate-600 text-[10px] font-medium rounded">
+                      Wi-Fi
+                    </span>
 
-                    <div className="flex items-center gap-1 text-slate-600" title="Category">
-                      <Users className="w-4 h-4 text-purple-600" />
-                      <span className="text-[11px] font-medium capitalize text-slate-600">
-                        {pg.category}
-                      </span>
-                    </div>
+                    <span className="px-2 py-0.5 bg-slate-100 text-slate-600 text-[10px] font-medium rounded capitalize">
+                      {pg.category}
+                    </span>
                   </div>
 
-                  <span className="text-[11px] font-semibold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded">
+                  <span className="text-[10px] font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-100">
                     0 Brokerage
                   </span>
                 </div>
