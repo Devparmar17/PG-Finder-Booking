@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowRight, MapPin, Navigation } from 'lucide-react';
+import { ArrowRight, MapPin } from 'lucide-react';
 import { PGListing } from '../types';
 
 interface NearYouMapPreviewProps {
@@ -13,89 +13,89 @@ export const NearYouMapPreview: React.FC<NearYouMapPreviewProps> = ({
   listingsCount,
 }) => {
   return (
-    <section id="section-near-you" className="px-4 py-3">
+    <section id="section-near-you" className="px-5 py-3">
       {/* Title */}
-      <h2 className="text-xl font-extrabold text-slate-900 tracking-tight mb-3">
-        Near <span className="text-slate-900 font-extrabold">You</span>
+      <h2 className="text-xl font-extrabold text-slate-800 tracking-tight mb-3">
+        Near <span className="text-slate-800 font-extrabold">You</span>
       </h2>
 
-      {/* Map Interactive Banner Card */}
+      {/* Map Interactive Card */}
       <div
         id="card-map-preview"
         onClick={onOpenMap}
-        className="relative rounded-xl overflow-hidden border border-slate-200 shadow-sm bg-slate-50 cursor-pointer group hover:shadow-md hover:border-slate-300 transition-all duration-300"
+        className="relative rounded-2xl overflow-hidden border border-slate-200/90 shadow-sm bg-white cursor-pointer group hover:shadow-md transition-all duration-300"
       >
-        {/* Stylized Vector Map Graphics with Road Network & Pin Highlights */}
-        <div className="relative h-44 w-full bg-[#EBF2F7] overflow-hidden">
+        {/* Stylized Vector Map Graphics */}
+        <div className="relative h-48 w-full bg-[#EEF2F6] overflow-hidden">
           <svg
-            className="w-full h-full object-cover opacity-90"
-            viewBox="0 0 400 180"
+            className="w-full h-full object-cover"
+            viewBox="0 0 400 190"
             xmlns="http://www.w3.org/2000/svg"
           >
             {/* Background Base */}
-            <rect width="400" height="180" fill="#E8EFF5" />
+            <rect width="400" height="190" fill="#E8EEF5" />
 
             {/* River Sabarmati outline */}
             <path
-              d="M 280,-20 Q 260,60 270,110 T 250,200"
+              d="M 280,-20 Q 255,60 270,110 T 245,210"
               fill="none"
               stroke="#BEE3F8"
-              strokeWidth="24"
+              strokeWidth="22"
               strokeLinecap="round"
             />
             <path
-              d="M 280,-20 Q 260,60 270,110 T 250,200"
+              d="M 280,-20 Q 255,60 270,110 T 245,210"
               fill="none"
               stroke="#90CDF4"
-              strokeWidth="16"
+              strokeWidth="14"
               strokeLinecap="round"
             />
 
             {/* Major Arterial Roads / SG Highway */}
             <path
-              d="M 40,0 L 140,180"
+              d="M 45,0 L 145,190"
               stroke="#FFFFFF"
-              strokeWidth="10"
+              strokeWidth="12"
               strokeLinecap="round"
             />
             <path
-              d="M 40,0 L 140,180"
+              d="M 45,0 L 145,190"
               stroke="#CBD5E1"
               strokeWidth="2"
               strokeDasharray="4 4"
             />
 
-            {/* Ring Road */}
+            {/* Ring Roads */}
             <path
-              d="M -10,90 Q 150,30 380,120"
+              d="M -10,90 Q 150,30 390,120"
+              stroke="#FFFFFF"
+              strokeWidth="9"
+              strokeLinecap="round"
+            />
+            <path
+              d="M 80,0 Q 220,100 400,40"
               stroke="#FFFFFF"
               strokeWidth="8"
               strokeLinecap="round"
             />
             <path
-              d="M 80,0 Q 220,100 390,40"
+              d="M 20,145 Q 180,165 390,150"
               stroke="#FFFFFF"
               strokeWidth="7"
               strokeLinecap="round"
             />
-            <path
-              d="M 20,140 Q 180,160 380,150"
-              stroke="#FFFFFF"
-              strokeWidth="6"
-              strokeLinecap="round"
-            />
 
             {/* Minor streets */}
-            <path d="M 60,40 L 220,45" stroke="#E2E8F0" strokeWidth="3" />
-            <path d="M 120,80 L 260,100" stroke="#E2E8F0" strokeWidth="3" />
-            <path d="M 170,20 L 190,170" stroke="#E2E8F0" strokeWidth="3" />
-            <path d="M 310,10 L 330,170" stroke="#E2E8F0" strokeWidth="3" />
+            <path d="M 60,40 L 220,45" stroke="#CBD5E1" strokeWidth="2.5" />
+            <path d="M 120,80 L 260,100" stroke="#CBD5E1" strokeWidth="2.5" />
+            <path d="M 170,20 L 190,180" stroke="#CBD5E1" strokeWidth="2.5" />
+            <path d="M 310,10 L 330,180" stroke="#CBD5E1" strokeWidth="2.5" />
 
-            {/* Locality text annotations matching screenshot */}
+            {/* Locality text annotations */}
             <text x="140" y="32" fill="#334155" fontSize="13" fontWeight="bold" fontFamily="sans-serif">
               અમદાવાદ (Ahmedabad)
             </text>
-            <text x="60" y="58" fill="#64748B" fontSize="9" fontWeight="600" fontFamily="sans-serif">
+            <text x="55" y="58" fill="#64748B" fontSize="9" fontWeight="600" fontFamily="sans-serif">
               Sarkhej-Okaf
             </text>
             <text x="210" y="48" fill="#64748B" fontSize="8" fontFamily="sans-serif">
@@ -117,65 +117,41 @@ export const NearYouMapPreview: React.FC<NearYouMapPreviewProps> = ({
               Changodar
             </text>
 
-            {/* Radar / Pulse on User Location */}
-            <circle cx="110" cy="70" r="16" fill="#2563EB" fillOpacity="0.15" />
-            <circle cx="110" cy="70" r="8" fill="#2563EB" fillOpacity="0.3" />
-            <circle cx="110" cy="70" r="4" fill="#1D4ED8" />
+            {/* Location pins */}
+            {/* User location dot with ripple */}
+            <circle cx="110" cy="70" r="14" fill="#7C3AED" fillOpacity="0.2" />
+            <circle cx="110" cy="70" r="7" fill="#7C3AED" fillOpacity="0.4" />
+            <circle cx="110" cy="70" r="3.5" fill="#7C3AED" />
 
-            {/* PG Pin 1 (Raj PG) */}
-            <g transform="translate(100, 50)">
-              <rect x="0" y="0" width="46" height="18" rx="9" fill="#2563EB" stroke="#FFFFFF" strokeWidth="1.5" />
-              <text x="23" y="12" fill="#FFFFFF" fontSize="8.5" fontWeight="bold" textAnchor="middle">
-                ₹10k
-              </text>
+            {/* Red / Violet map pins */}
+            <g transform="translate(100, 48)">
+              <circle cx="10" cy="10" r="7" fill="#EF4444" stroke="#FFFFFF" strokeWidth="1.5" />
             </g>
-
-            {/* PG Pin 2 (Darshan PG) */}
-            <g transform="translate(75, 95)">
-              <rect x="0" y="0" width="48" height="18" rx="9" fill="#1D4ED8" stroke="#FFFFFF" strokeWidth="1.5" />
-              <text x="24" y="12" fill="#FFFFFF" fontSize="8.5" fontWeight="bold" textAnchor="middle">
-                ₹12.5k
-              </text>
+            <g transform="translate(70, 95)">
+              <circle cx="10" cy="10" r="7" fill="#7C3AED" stroke="#FFFFFF" strokeWidth="1.5" />
             </g>
-
-            {/* PG Pin 3 (Sarda PG) */}
-            <g transform="translate(180, 110)">
-              <rect x="0" y="0" width="44" height="18" rx="9" fill="#2563EB" stroke="#FFFFFF" strokeWidth="1.5" />
-              <text x="22" y="12" fill="#FFFFFF" fontSize="8.5" fontWeight="bold" textAnchor="middle">
-                ₹8.5k
-              </text>
+            <g transform="translate(175, 105)">
+              <circle cx="10" cy="10" r="7" fill="#7C3AED" stroke="#FFFFFF" strokeWidth="1.5" />
             </g>
-
-            {/* PG Pin 4 (Shreeji) */}
-            <g transform="translate(230, 70)">
-              <rect x="0" y="0" width="44" height="18" rx="9" fill="#3B82F6" stroke="#FFFFFF" strokeWidth="1.5" />
-              <text x="22" y="12" fill="#FFFFFF" fontSize="8.5" fontWeight="bold" textAnchor="middle">
-                ₹11k
-              </text>
+            <g transform="translate(225, 65)">
+              <circle cx="10" cy="10" r="7" fill="#EF4444" stroke="#FFFFFF" strokeWidth="1.5" />
             </g>
           </svg>
 
-          {/* Current location tag badge */}
-          <div className="absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1 bg-white/95 backdrop-blur-sm rounded-md text-[11px] font-semibold text-slate-800 shadow-sm border border-slate-200">
-            <Navigation className="w-3 h-3 text-blue-600 fill-blue-600" />
-            <span>Thaltej, Ahmedabad</span>
-          </div>
-
-          {/* Bottom Overlay Pill matching design */}
-          <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between pointer-events-none">
-            <div className="bg-white/95 backdrop-blur-md px-3.5 py-2 rounded-lg shadow-sm border border-slate-200">
-              <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
-                {listingsCount} Verified PGs nearby
+          {/* Floating Action Overlay at Bottom of Map */}
+          <div className="absolute bottom-3 left-4 right-4 bg-white/95 backdrop-blur-md rounded-2xl p-3 px-4 flex items-center justify-between shadow-md border border-slate-100">
+            <div>
+              <div className="text-sm font-bold text-slate-800">
+                {listingsCount || 10} PGs near by you
               </div>
-              <div className="text-sm font-bold text-blue-600 tracking-tight flex items-center gap-1">
-                <MapPin className="w-3.5 h-3.5 text-blue-600" />
-                <span>Explore on Map</span>
+              <div className="text-xs font-semibold text-[#7C3AED] flex items-center gap-1 mt-0.5">
+                <span>Explore Area</span>
               </div>
             </div>
 
-            {/* Blue Circular Action Button */}
-            <div className="w-10 h-10 rounded-lg bg-blue-600 group-hover:bg-blue-700 text-white flex items-center justify-center shadow-md group-hover:scale-105 transition-all">
-              <ArrowRight className="w-5 h-5" />
+            {/* Circular Purple Arrow Button matching screenshot */}
+            <div className="w-10 h-10 rounded-full bg-[#7C3AED] group-hover:bg-purple-700 text-white flex items-center justify-center shadow-md group-hover:scale-105 transition-transform">
+              <ArrowRight className="w-5 h-5 stroke-[2.5]" />
             </div>
           </div>
         </div>
@@ -183,3 +159,4 @@ export const NearYouMapPreview: React.FC<NearYouMapPreviewProps> = ({
     </section>
   );
 };
+

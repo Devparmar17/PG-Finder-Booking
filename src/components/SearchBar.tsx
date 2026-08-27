@@ -10,21 +10,18 @@ interface SearchBarProps {
 export const SearchBar: React.FC<SearchBarProps> = ({
   searchQuery,
   onSearchChange,
-  onLocationTagClick,
 }) => {
-  const quickLocations = ['Thaltej', 'Bodakdev', 'Satellite', 'Navrangpura', 'Vastrapur', 'SG Highway'];
-
   return (
-    <div id="search-section" className="px-4 pt-1 pb-3">
+    <div id="search-section" className="px-5 pt-3 pb-2">
       {/* Hero Title */}
-      <h1 className="text-2xl font-bold text-slate-900 tracking-tight mb-3">
-        Find Your <span className="text-blue-600 font-extrabold">PG</span>
+      <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-800 tracking-tight mb-4">
+        Find Your <span className="text-[#8B5CF6] font-extrabold">PG</span>
       </h1>
 
       {/* Search Input Box */}
-      <div className="relative flex items-center">
-        <div className="absolute left-3.5 text-blue-600 flex items-center pointer-events-none">
-          <Home className="w-5 h-5 text-blue-600" />
+      <div className="relative flex items-center bg-white rounded-2xl border border-purple-100/90 shadow-sm hover:border-purple-200 transition-all">
+        <div className="absolute left-4 text-[#8B5CF6] flex items-center pointer-events-none">
+          <Home className="w-5 h-5 text-[#8B5CF6] stroke-[2]" />
         </div>
 
         <input
@@ -32,48 +29,22 @@ export const SearchBar: React.FC<SearchBarProps> = ({
           type="text"
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
-          placeholder="Search by location, area, or landmark"
-          className="w-full pl-11 pr-10 py-2.5 bg-white border border-slate-300 rounded-lg text-sm font-medium text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 shadow-sm transition-all"
+          placeholder="Search by location"
+          className="w-full pl-12 pr-10 py-3.5 bg-transparent rounded-2xl text-sm font-medium text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#8B5CF6]/30"
         />
 
         {searchQuery ? (
           <button
             id="btn-clear-search"
             onClick={() => onSearchChange('')}
-            className="absolute right-3.5 p-1 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
+            className="absolute right-3.5 p-1 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"
             aria-label="Clear search"
           >
             <X className="w-4 h-4" />
           </button>
-        ) : (
-          <div className="absolute right-3.5 text-slate-400 pointer-events-none">
-            <Search className="w-4 h-4" />
-          </div>
-        )}
-      </div>
-
-      {/* Quick Location Pills */}
-      <div className="flex items-center gap-1.5 mt-2.5 overflow-x-auto no-scrollbar py-0.5 text-xs">
-        <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider shrink-0 mr-1">
-          Popular:
-        </span>
-        {quickLocations.map((loc) => (
-          <button
-            key={loc}
-            onClick={() => {
-              onSearchChange(loc);
-              onLocationTagClick?.(loc);
-            }}
-            className={`px-2.5 py-1 rounded-md font-medium transition-all shrink-0 text-[11px] ${
-              searchQuery.toLowerCase().includes(loc.toLowerCase())
-                ? 'bg-blue-600 text-white shadow-sm font-semibold'
-                : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900'
-            }`}
-          >
-            {loc}
-          </button>
-        ))}
+        ) : null}
       </div>
     </div>
   );
 };
+

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Star, MapPin, Wifi, BedDouble, Users, Heart, CheckCircle2, Shield } from 'lucide-react';
+import { Star, MapPin, Wifi, BedDouble, Heart } from 'lucide-react';
 import { PGListing } from '../types';
 
 interface PGCardProps {
@@ -19,10 +19,10 @@ export const PGCard: React.FC<PGCardProps> = ({
     <div
       id={`pg-card-${pg.id}`}
       onClick={() => onSelect(pg)}
-      className="bg-white rounded-xl p-3.5 border border-slate-200 shadow-sm hover:shadow-md hover:border-slate-300 transition-all duration-200 cursor-pointer flex gap-3.5 items-center group relative"
+      className="bg-white rounded-2xl p-3 border border-slate-200/90 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer flex gap-3.5 items-center group relative"
     >
-      {/* Left Thumbnail with Verified badge */}
-      <div className="relative w-28 h-24 sm:w-32 sm:h-28 rounded-lg overflow-hidden bg-slate-100 shrink-0">
+      {/* Left Thumbnail */}
+      <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-xl overflow-hidden bg-slate-100 shrink-0">
         <img
           src={pg.images[0]}
           alt={pg.name}
@@ -30,14 +30,10 @@ export const PGCard: React.FC<PGCardProps> = ({
         />
 
         {pg.isVerified && (
-          <div className="absolute top-1.5 left-1.5 px-1.5 py-0.5 bg-green-50 text-green-700 border border-green-200 text-[9px] font-bold rounded uppercase tracking-wider shadow-sm" title="Verified PG">
+          <div className="absolute top-1.5 left-1.5 px-1.5 py-0.5 bg-[#7C3AED] text-white text-[8px] font-bold rounded shadow-xs">
             Verified
           </div>
         )}
-
-        <div className="absolute bottom-1 right-1 px-1.5 py-0.5 bg-slate-900/85 backdrop-blur-sm text-white text-[10px] font-bold rounded">
-          ₹{(pg.pricePerMonth / 1000).toFixed(pg.pricePerMonth % 1000 === 0 ? 0 : 1)}k/mo
-        </div>
       </div>
 
       {/* Right Content */}
@@ -45,45 +41,34 @@ export const PGCard: React.FC<PGCardProps> = ({
         <div>
           {/* Title and Rating */}
           <div className="flex items-start justify-between gap-1 mb-0.5">
-            <h3 className="font-bold text-sm sm:text-base text-slate-900 truncate group-hover:text-blue-600 transition-colors">
+            <h3 className="font-bold text-base text-slate-900 truncate">
               {pg.name}
             </h3>
           </div>
 
           {/* Location */}
-          <div className="flex items-center gap-1 text-slate-500 text-xs mb-1.5 truncate">
-            <MapPin className="w-3.5 h-3.5 text-blue-600 shrink-0" />
-            <span className="truncate">{pg.location}</span>
+          <div className="flex items-center gap-1 text-slate-400 text-xs mb-1 truncate">
+            <MapPin className="w-3.5 h-3.5 text-[#7C3AED] shrink-0" />
+            <span className="truncate">{pg.location.replace(/^[A-Za-z]+,\s*/, '') || 'Ahmedabad-Gujarat'}</span>
           </div>
 
           {/* Rating */}
-          <div className="flex items-center gap-1 text-xs mb-2">
-            <div className="flex items-center gap-0.5 text-amber-500 font-bold">
-              <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+          <div className="flex items-center gap-1 text-xs mb-1.5">
+            <div className="flex items-center gap-0.5 text-slate-700 font-semibold">
+              <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-400" />
               <span>{pg.rating}</span>
             </div>
-            <span className="text-slate-400 text-[11px]">({pg.reviewCount} reviews)</span>
-            {pg.distanceFromUserKm && (
-              <span className="text-blue-600 text-[11px] font-medium ml-1">
-                • {pg.distanceFromUserKm} km
-              </span>
-            )}
+            <span className="text-slate-400 text-[11px]">({pg.reviewCount})</span>
           </div>
         </div>
 
-        {/* Bottom Row: Amenities & Heart Icon matching design */}
+        {/* Bottom Row: Amenities Icons & Heart Icon */}
         <div className="flex items-center justify-between pt-1.5 border-t border-slate-100">
-          <div className="flex items-center gap-1.5">
-            <span className="px-2 py-0.5 bg-slate-100 text-slate-600 text-[10px] font-medium rounded">
-              {pg.sharingOptions[0]?.split(' ')[0]}
-            </span>
-
-            <span className="px-2 py-0.5 bg-slate-100 text-slate-600 text-[10px] font-medium rounded">
-              Wi-Fi
-            </span>
-
-            <span className="px-2 py-0.5 bg-slate-100 text-slate-600 text-[10px] font-medium rounded capitalize">
-              {pg.category}
+          <div className="flex items-center gap-3 text-[#8B5CF6]">
+            <BedDouble className="w-4 h-4 text-[#8B5CF6]" />
+            <Wifi className="w-4 h-4 text-[#8B5CF6]" />
+            <span className="text-sm font-bold text-[#8B5CF6]">
+              {pg.category === 'girls' ? '♀' : pg.category === 'boys' ? '♂' : '⚥'}
             </span>
           </div>
 
@@ -91,12 +76,12 @@ export const PGCard: React.FC<PGCardProps> = ({
           <button
             id={`btn-fav-card-${pg.id}`}
             onClick={(e) => onToggleFavorite(pg.id, e)}
-            className="p-1 rounded-full hover:bg-slate-100 text-slate-400 hover:text-red-500 transition-colors"
+            className="p-1 rounded-full hover:bg-slate-100 text-slate-400 hover:text-red-500 transition-colors cursor-pointer"
             aria-label="Save to favorites"
           >
             <Heart
               className={`w-4 h-4 transition-colors ${
-                isFavorite ? 'fill-red-500 text-red-500' : 'text-slate-400'
+                isFavorite ? 'fill-red-500 text-red-500' : 'text-slate-300'
               }`}
             />
           </button>
@@ -105,3 +90,4 @@ export const PGCard: React.FC<PGCardProps> = ({
     </div>
   );
 };
+

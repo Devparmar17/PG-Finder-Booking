@@ -599,13 +599,13 @@ export const PGDetailModal: React.FC<PGDetailModalProps> = ({
 
         {/* Sticky Bottom Booking Bar */}
         <div className="fixed bottom-0 left-0 right-0 z-50 flex justify-center pointer-events-none">
-          <div className="w-full max-w-md bg-white border-t border-slate-200 px-4 py-3 shadow-lg flex items-center justify-between pointer-events-auto">
+          <div className="w-full max-w-md bg-white border-t border-slate-200 px-5 py-3.5 shadow-xl flex items-center justify-between pointer-events-auto">
             <div>
-              <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+              <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                 Monthly Rent
               </div>
               <div className="text-xl font-black text-slate-900">
-                {effectivePrice} ₹<span className="text-xs font-medium text-slate-500">/mo</span>
+                ₹{effectivePrice.toLocaleString()} <span className="text-xs font-medium text-slate-400">/mo</span>
               </div>
             </div>
 
@@ -613,7 +613,7 @@ export const PGDetailModal: React.FC<PGDetailModalProps> = ({
             <button
               id="btn-book-now-bottom"
               onClick={() => onBookNow(pg, selectedBed)}
-              className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg shadow-sm flex items-center gap-2 transition-all active:scale-95 cursor-pointer"
+              className="px-6 py-3 bg-[#7C3AED] hover:bg-purple-700 active:bg-purple-800 text-white text-sm font-bold rounded-xl shadow-sm flex items-center gap-2 transition-all cursor-pointer"
             >
               <span>Book Now</span>
               <ChevronRight className="w-4 h-4" />

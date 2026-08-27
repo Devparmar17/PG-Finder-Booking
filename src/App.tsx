@@ -220,9 +220,9 @@ export default function App() {
   const unreadNotificationsCount = notifications.filter((n) => !n.read).length;
 
   return (
-    <div className="min-h-screen bg-slate-100 flex justify-center text-slate-900 antialiased font-sans selection:bg-blue-600 selection:text-white">
-      {/* Mobile Frame Container (centered for preview, full on mobile) */}
-      <main className="w-full max-w-md bg-slate-50 min-h-screen relative flex flex-col shadow-2xl border-x border-slate-200/60 overflow-x-hidden">
+    <div className="min-h-screen bg-slate-900/5 sm:bg-slate-200/60 flex justify-center text-slate-900 antialiased font-sans selection:bg-[#7C3AED] selection:text-white">
+      {/* Mobile Frame Container */}
+      <main className="w-full max-w-md bg-[#FBF9FE] min-h-screen relative flex flex-col shadow-2xl border-x border-purple-100/60 overflow-x-hidden">
         {/* Top App Header */}
         <Header
           unreadNotificationCount={unreadNotificationsCount}
@@ -270,33 +270,29 @@ export default function App() {
               />
             )}
 
-            {/* Recommended Accommodations Section (matching screenshot list) */}
-            <section id="section-recommended" className="px-4 py-2">
+            {/* Recommended Accommodations Section (matching screenshot) */}
+            <section id="section-recommended" className="px-5 py-2">
               <div className="flex items-center justify-between mb-3">
-                <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">
+                <h2 className="text-xl font-extrabold text-slate-800 tracking-tight">
                   {filters.searchQuery ? (
                     <span>
                       Search Results{' '}
-                      <span className="text-sm font-medium text-slate-500">
+                      <span className="text-sm font-medium text-slate-400">
                         ({filteredListings.length})
                       </span>
                     </span>
                   ) : (
                     <span>
-                      Recommended <span className="text-slate-900 font-extrabold">PGs</span>
+                      Recommended
                     </span>
                   )}
                 </h2>
-
-                <span className="text-xs font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100">
-                  {filteredListings.length} Available
-                </span>
               </div>
 
               {/* Listings Stack */}
               {filteredListings.length === 0 ? (
-                <div className="bg-white rounded-2xl p-8 text-center border border-slate-200 shadow-sm space-y-2">
-                  <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto">
+                <div className="bg-white rounded-2xl p-8 text-center border border-slate-200/90 shadow-sm space-y-2">
+                  <div className="w-12 h-12 bg-purple-50 text-[#7C3AED] rounded-full flex items-center justify-center mx-auto">
                     <Search className="w-6 h-6" />
                   </div>
                   <h3 className="font-bold text-sm text-slate-800">No Accommodations Found</h3>
@@ -305,7 +301,7 @@ export default function App() {
                   </p>
                   <button
                     onClick={handleResetFilters}
-                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold shadow-sm transition-colors mt-2"
+                    className="px-4 py-2 bg-[#7C3AED] hover:bg-purple-700 text-white rounded-xl text-xs font-semibold shadow-sm transition-colors mt-2 cursor-pointer"
                   >
                     Reset All Filters
                   </button>
@@ -321,6 +317,19 @@ export default function App() {
                       onToggleFavorite={handleToggleFavorite}
                     />
                   ))}
+                </div>
+              )}
+
+              {/* "View more Listing" Button matching screenshot */}
+              {filteredListings.length > 0 && (
+                <div className="pt-4 pb-2">
+                  <button
+                    id="btn-view-more-listings"
+                    onClick={() => setShowFilterModal(true)}
+                    className="w-full py-3.5 px-4 bg-[#B48CF8] hover:bg-[#a375f5] active:bg-[#925ee8] text-white font-bold text-sm rounded-2xl shadow-sm transition-all text-center cursor-pointer"
+                  >
+                    View more Listing
+                  </button>
                 </div>
               )}
             </section>
