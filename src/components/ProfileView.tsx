@@ -6,9 +6,10 @@ import { BookingRecord } from '../types';
 interface ProfileViewProps {
   bookings: BookingRecord[];
   onBackToHome: () => void;
+  onOpenSupport?: () => void;
 }
 
-export const ProfileView: React.FC<ProfileViewProps> = ({ bookings }) => {
+export const ProfileView: React.FC<ProfileViewProps> = ({ bookings, onOpenSupport }) => {
   const [downloadedId, setDownloadedId] = useState<string | null>(null);
 
   const handleDownload = (id: string) => {
@@ -107,12 +108,18 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ bookings }) => {
 
       {/* Support & Settings Links */}
       <div className="bg-white rounded-2xl p-2 border border-slate-200/90 shadow-sm text-xs font-semibold text-slate-700">
-        <button className="w-full p-3 flex items-center justify-between hover:bg-slate-50 rounded-xl transition-colors cursor-pointer">
+        <button
+          onClick={onOpenSupport}
+          className="w-full p-3 flex items-center justify-between hover:bg-purple-50 rounded-xl transition-colors cursor-pointer text-left"
+        >
           <div className="flex items-center gap-2.5">
             <HelpCircle className="w-4 h-4 text-[#7C3AED]" />
-            <span>Help & PG Resident Support</span>
+            <div className="flex items-center gap-2">
+              <span>Help & AI Resident Support</span>
+              <span className="text-[10px] bg-purple-100 text-[#7C3AED] px-2 py-0.5 rounded-full font-bold">24/7 AI Bot</span>
+            </div>
           </div>
-          <span className="text-slate-400 font-bold">›</span>
+          <span className="text-[#7C3AED] font-bold">›</span>
         </button>
 
         <button className="w-full p-3 flex items-center justify-between hover:bg-red-50 rounded-xl transition-colors text-red-600 cursor-pointer">

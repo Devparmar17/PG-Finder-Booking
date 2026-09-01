@@ -57,6 +57,28 @@ export default function App() {
     minRating: 0,
   });
 
+  const handleSeeAllListings = () => {
+    // Reset filters to show all listed PGs
+    setFilters({
+      searchQuery: '',
+      genderCategory: 'all',
+      foodPreference: 'all',
+      maxPrice: 30000,
+      sharingType: 'all',
+      verifiedOnly: false,
+      hasAC: false,
+      hasBiometric: false,
+      minRating: 0,
+    });
+    // Smooth scroll to the full listing section
+    setTimeout(() => {
+      const section = document.getElementById('section-recommended');
+      if (section) {
+        section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 50);
+  };
+
   const handleFilterUpdate = (updates: Partial<FilterState>) => {
     setFilters((prev) => ({ ...prev, ...updates }));
   };
@@ -257,7 +279,7 @@ export default function App() {
                 onSelectPG={(pg) => setSelectedPG(pg)}
                 favorites={favorites}
                 onToggleFavorite={handleToggleFavorite}
-                onSeeAllClick={() => setShowFilterModal(true)}
+                onSeeAllClick={handleSeeAllListings}
               />
             )}
 
@@ -329,10 +351,10 @@ export default function App() {
                 <div className="pt-4 pb-2">
                   <button
                     id="btn-view-more-listings"
-                    onClick={() => setShowFilterModal(true)}
+                    onClick={handleSeeAllListings}
                     className="w-full py-3.5 px-4 bg-[#B48CF8] hover:bg-[#a375f5] active:bg-[#925ee8] text-white font-bold text-sm rounded-2xl shadow-sm transition-all text-center cursor-pointer"
                   >
-                    View more Listing
+                    View All {listings.length} Listed PGs
                   </button>
                 </div>
               )}
@@ -399,6 +421,7 @@ export default function App() {
           <ProfileView
             bookings={bookings}
             onBackToHome={() => setActiveTab('explore')}
+            onOpenSupport={() => setActiveTab('mystay')}
           />
         )}
 
