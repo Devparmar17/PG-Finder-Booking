@@ -1,11 +1,12 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   MOCK_PG_LISTINGS,
   INITIAL_BOOKING,
   INITIAL_MAINTENANCE_TICKETS,
   INITIAL_NOTIFICATIONS,
+  INITIAL_USER,
 } from './data/mockData';
-import { PGListing, FilterState, BedSlot, BookingRecord, MaintenanceTicket, Review, NotificationItem } from './types';
+import { PGListing, FilterState, BedSlot, BookingRecord, MaintenanceTicket, Review, NotificationItem, UserProfile } from './types';
 import { Header } from './components/Header';
 import { SearchBar } from './components/SearchBar';
 import { FilterBar } from './components/FilterBar';
@@ -21,10 +22,28 @@ import { SavedFavoritesView } from './components/SavedFavoritesView';
 import { ProfileView } from './components/ProfileView';
 import { NotificationsModal } from './components/NotificationsModal';
 import { WriteReviewModal } from './components/WriteReviewModal';
+import { AuthModal } from './components/AuthModal';
 import { BottomNavBar, TabType } from './components/BottomNavBar';
 import { Sparkles, Building2, Shield, Search } from 'lucide-react';
 
 export default function App() {
+  // Authentication & Onboarding state - default open when app starts
+  const [currentUser, setCurrentUser] = useState<UserProfile | null>(() => {
+    const saved = localStorage.getItem('apnapg_user') || localStorage.getItem('stayfinder_user');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        return null;
+      }
+    }
+    return null;
+  });
+
+  const [showAuthModal, setShowAuthModal] = useState<boolean>(() => {
+    return !(localStorage.getItem('apnapg_user') || localStorage.getItem('stayfinder_user'));
+  });
+
   // Core application state
   const [listings, setListings] = useState<PGListing[]>(MOCK_PG_LISTINGS);
   const [selectedCity, setSelectedCity] = useState<string>('Ahmedabad');
@@ -32,7 +51,7 @@ export default function App() {
   const [selectedPG, setSelectedPG] = useState<PGListing | null>(null);
   const [bookingPG, setBookingPG] = useState<PGListing | null>(null);
   const [bookingInitialBed, setBookingInitialBed] = useState<BedSlot | undefined>(undefined);
-  const [favorites, setFavorites] = useState<string[]>(['pg-1', 'pg-4']); // Raj PG & Shreeji default saved
+  const [favorites, setFavorites] = useState<string[]>(['raj-pg-thaltej', 'darshan-pg-bodakdev']); // Raj PG & Darshan default saved
   const [bookings, setBookings] = useState<BookingRecord[]>([INITIAL_BOOKING]);
   const [maintenanceTickets, setMaintenanceTickets] = useState<MaintenanceTicket[]>(
     INITIAL_MAINTENANCE_TICKETS
@@ -55,7 +74,70 @@ export default function App() {
     hasAC: false,
     hasBiometric: false,
     minRating: 0,
+    sortBy: 'recommended',
+    selectedCity: 'Ahmedabad',
+    hasAttachedBath: false,
+    hasWifi: false,
   });
+
+  // When user logs in and completes pre-details
+  const handleLoginSuccess = (user: UserProfile) => {
+    setCurrentUser(user);
+    localStorage.setItem('apnapg_user', JSON.stringify(user));
+    setShowAuthModal(false);
+    
+    // Automatically match city and gender category if specified
+    if (user.city) {
+      setSelectedCity(user.city);
+    }
+    if (user.gender === 'male') {
+      setFilters(prev => ({ ...prev, genderCategory: 'boys' }));
+    } else if (user.gender === 'female') {
+      setFilters(prev => ({ ...prev, genderCategory: 'girls' }));
+    }
+
+    // Add welcome notification
+    const welcomeNotif: NotificationItem = {
+      id: `notif-welcome-${Date.now()}`,
+      title: `Welcome to Apna PG, ${user.name}! 🏠`,
+      message: `Your pre-details for ${user.city} are active. Explore verified student & professional PGs with 100% refundable security deposits.`,
+      timestamp: 'Just now',
+      read: false,
+      type: 'system',
+    };
+    setNotifications(prev => [welcomeNotif, ...prev]);
+  };
+
+  const handleUpdateProfile = (updatedUser: UserProfile) => {
+    setCurrentUser(updatedUser);
+    localStorage.setItem('apnapg_user', JSON.stringify(updatedUser));
+    if (updatedUser.city) {
+      setSelectedCity(updatedUser.city);
+      setFilters(prev => ({ ...prev, selectedCity: updatedUser.city }));
+    }
+    if (updatedUser.gender === 'male') {
+      setFilters(prev => ({ ...prev, genderCategory: 'boys' }));
+    } else if (updatedUser.gender === 'female') {
+      setFilters(prev => ({ ...prev, genderCategory: 'girls' }));
+    }
+
+    const profileNotif: NotificationItem = {
+      id: `notif-profile-${Date.now()}`,
+      title: 'Resident Profile Updated 👤',
+      message: `Profile details for ${updatedUser.name} were updated. Changes are saved across your resident stay hub and rent receipts.`,
+      timestamp: 'Just now',
+      read: false,
+      type: 'system',
+    };
+    setNotifications(prev => [profileNotif, ...prev]);
+  };
+
+  const handleSignOut = () => {
+    localStorage.removeItem('apnapg_user');
+    localStorage.removeItem('stayfinder_user');
+    setCurrentUser(null);
+    setShowAuthModal(true);
+  };
 
   const handleSeeAllListings = () => {
     // Reset filters to show all listed PGs
@@ -247,6 +329,7 @@ export default function App() {
       <main className="w-full max-w-md sm:max-w-xl md:max-w-3xl lg:max-w-4xl xl:max-w-5xl bg-[#FBF9FE] min-h-screen relative flex flex-col shadow-2xl border-x border-purple-100/60 overflow-x-hidden transition-all duration-200">
         {/* Top App Header */}
         <Header
+          currentUser={currentUser}
           unreadNotificationCount={unreadNotificationsCount}
           onOpenNotifications={() => setShowNotificationsModal(true)}
           selectedCity={selectedCity}
@@ -381,6 +464,8 @@ export default function App() {
             activeBooking={activeBooking}
             pgListing={activeStayPG}
             maintenanceTickets={maintenanceTickets}
+            currentUser={currentUser}
+            onUpdateProfile={handleUpdateProfile}
             onAddTicket={(ticket) => {
               const newT: MaintenanceTicket = {
                 ...ticket,
@@ -419,9 +504,12 @@ export default function App() {
         {/* TAB 5: User Profile & KYC */}
         {activeTab === 'profile' && (
           <ProfileView
+            currentUser={currentUser}
             bookings={bookings}
             onBackToHome={() => setActiveTab('explore')}
             onOpenSupport={() => setActiveTab('mystay')}
+            onSignOut={handleSignOut}
+            onUpdateProfile={handleUpdateProfile}
           />
         )}
 
@@ -432,6 +520,11 @@ export default function App() {
           savedCount={favorites.length}
           hasActiveStay={bookings.length > 0}
         />
+
+        {/* Login & Pre-Details Onboarding Modal (Opens When App Starts) */}
+        {showAuthModal && (
+          <AuthModal onLoginSuccess={handleLoginSuccess} />
+        )}
 
         {/* Full-Screen Detailed PG Modal (matching screenshot iPhone 14 & 15 Pro - 12.png) */}
         {selectedPG && (

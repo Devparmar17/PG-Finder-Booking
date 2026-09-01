@@ -1,3 +1,20 @@
+export interface UserProfile {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  avatar: string;
+  city: string;
+  gender: 'male' | 'female' | 'other';
+  userType: 'student' | 'working_professional';
+  institutionOrCompany?: string;
+  kycStatus: 'Verified' | 'Pending' | 'Not Started';
+  emergencyContact: string;
+  authProvider: 'google' | 'apple' | 'phone' | 'email';
+  dietPreference?: 'veg' | 'jain' | 'non_veg' | 'eggetarian';
+  bloodGroup?: string;
+}
+
 export type GenderCategory = 'boys' | 'girls' | 'unisex' | 'all';
 export type SharingType = 'single' | 'double' | 'triple' | 'four_plus' | 'all';
 export type FoodPreference = 'included' | 'veg_only' | 'non_veg' | 'optional' | 'all';

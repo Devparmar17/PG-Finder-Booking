@@ -1,8 +1,9 @@
 import React from 'react';
 import { Bell } from 'lucide-react';
-import { INITIAL_USER } from '../data/mockData';
+import { UserProfile } from '../types';
 
 interface HeaderProps {
+  currentUser?: UserProfile | null;
   unreadNotificationCount: number;
   onOpenNotifications: () => void;
   selectedCity?: string;
@@ -11,10 +12,14 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({
+  currentUser,
   unreadNotificationCount,
   onOpenNotifications,
   onOpenProfile,
 }) => {
+  const userName = currentUser?.name || 'Dev Parmar';
+  const userAvatar = currentUser?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80';
+
   return (
     <header id="app-header" className="pt-4 pb-2 px-5 flex items-center justify-between">
       {/* User greeting and avatar */}
@@ -26,8 +31,8 @@ export const Header: React.FC<HeaderProps> = ({
           aria-label="Open profile"
         >
           <img
-            src={INITIAL_USER.avatar}
-            alt={INITIAL_USER.name}
+            src={userAvatar}
+            alt={userName}
             className="w-12 h-12 rounded-full object-cover shadow-sm border-2 border-white"
           />
         </button>
@@ -35,7 +40,7 @@ export const Header: React.FC<HeaderProps> = ({
         <div className="flex flex-col">
           <span className="text-sm font-semibold text-slate-800 leading-tight">Hello</span>
           <span className="text-base font-bold text-[#2563EB] tracking-tight leading-snug">
-            {INITIAL_USER.name}
+            {userName}
           </span>
         </div>
       </div>

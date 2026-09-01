@@ -49,16 +49,27 @@ import {
   Receipt,
   X,
   RefreshCw,
+  Edit3,
+  User,
+  MapPin,
+  GraduationCap,
+  Briefcase,
+  HeartPulse,
+  Mail,
 } from 'lucide-react';
-import { BookingRecord, MaintenanceTicket, PGListing } from '../types';
+import { BookingRecord, MaintenanceTicket, PGListing, UserProfile } from '../types';
+import { EditProfileModal } from './EditProfileModal';
+import { INITIAL_USER } from '../data/mockData';
 
 interface ResidentManagementViewProps {
   activeBooking: BookingRecord;
   pgListing?: PGListing;
   maintenanceTickets: MaintenanceTicket[];
+  currentUser?: UserProfile | null;
   onAddTicket: (ticket: any) => void;
   onPayRent: (bookingId: string) => void;
   onBackToExplore: () => void;
+  onUpdateProfile?: (user: UserProfile) => void;
 }
 
 interface AIMessage {
@@ -82,10 +93,14 @@ export const ResidentManagementView: React.FC<ResidentManagementViewProps> = ({
   activeBooking,
   pgListing,
   maintenanceTickets,
+  currentUser,
   onAddTicket,
   onPayRent,
   onBackToExplore,
+  onUpdateProfile,
 }) => {
+  const residentUser: UserProfile = currentUser || INITIAL_USER;
+  const [showEditProfileModal, setShowEditProfileModal] = useState(false);
   const [activeTab, setActiveTab] = useState<
     'overview' | 'ai_pg' | 'agreement' | 'move_out' | 'food' | 'maintenance' | 'rent'
   >('overview');
@@ -631,6 +646,73 @@ Digitally Signed by:
           </div>
 
           <div className="px-4 sm:px-6 space-y-4">
+            {/* ======================================================================= */}
+            {/* RESIDENT PROFILE CARD (WITH "CHANGE PROFILE" BUTTON) */}
+            {/* ======================================================================= */}
+            <div className="bg-white rounded-2xl p-4 sm:p-5 border border-purple-100 shadow-sm space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div
+                    onClick={() => setShowEditProfileModal(true)}
+                    className="relative cursor-pointer group shrink-0"
+                    title="Click to change profile"
+                  >
+                    <img
+                      src={residentUser.avatar}
+                      alt={residentUser.name}
+                      className="w-12 h-12 rounded-full object-cover ring-2 ring-purple-400/40 shadow-xs"
+                    />
+                    <span className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-white flex items-center justify-center">
+                      <Check className="w-2.5 h-2.5 text-white stroke-[3]" />
+                    </span>
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <h3 className="text-sm font-black text-slate-900">{residentUser.name}</h3>
+                      <span className="text-[10px] bg-purple-50 text-[#7C3AED] px-2 py-0.5 rounded-full font-bold border border-purple-200">
+                        {residentUser.userType === 'student' ? 'Student' : 'Working Pro'}
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-slate-500 font-medium">
+                      {residentUser.institutionOrCompany || 'Resident'} • {residentUser.phone}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Change Profile Action Button */}
+                <button
+                  id="btn-resident-change-profile"
+                  onClick={() => setShowEditProfileModal(true)}
+                  className="px-3 py-1.5 sm:px-3.5 sm:py-2 bg-gradient-to-r from-purple-50 to-indigo-50 hover:from-purple-100 hover:to-indigo-100 text-[#7C3AED] border border-purple-200/80 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs hover:scale-105 active:scale-95 shrink-0"
+                >
+                  <Edit3 className="w-3.5 h-3.5 text-[#7C3AED]" />
+                  <span>Change Profile</span>
+                </button>
+              </div>
+
+              {/* Quick Details Chips */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-slate-100 text-[11px]">
+                <div className="p-2 bg-purple-50/50 rounded-xl border border-purple-100/60">
+                  <span className="text-[9px] uppercase font-bold text-slate-400 block">Stay City</span>
+                  <span className="font-bold text-slate-800">{residentUser.city}</span>
+                </div>
+                <div className="p-2 bg-purple-50/50 rounded-xl border border-purple-100/60">
+                  <span className="text-[9px] uppercase font-bold text-slate-400 block">Diet</span>
+                  <span className="font-bold text-slate-800 capitalize">
+                    {residentUser.dietPreference || 'Pure Veg'}
+                  </span>
+                </div>
+                <div className="p-2 bg-purple-50/50 rounded-xl border border-purple-100/60">
+                  <span className="text-[9px] uppercase font-bold text-slate-400 block">Blood Group</span>
+                  <span className="font-bold text-slate-800">{residentUser.bloodGroup || 'B+'}</span>
+                </div>
+                <div className="p-2 bg-purple-50/50 rounded-xl border border-purple-100/60">
+                  <span className="text-[9px] uppercase font-bold text-slate-400 block">Emergency</span>
+                  <span className="font-bold text-slate-800 truncate block">{residentUser.emergencyContact}</span>
+                </div>
+              </div>
+            </div>
+
             {/* ======================================================================= */}
             {/* COMPACT BRIEF AI TEASER CARD (WITH 1-CLICK 'GO TO AI PG') */}
             {/* ======================================================================= */}
@@ -2208,6 +2290,20 @@ Authorized Signatory: Suresh Patel (Property Manager)
             </form>
           </div>
         </div>
+      )}
+
+      {/* Edit Resident Profile Modal */}
+      {showEditProfileModal && (
+        <EditProfileModal
+          currentUser={residentUser}
+          isOpen={showEditProfileModal}
+          onClose={() => setShowEditProfileModal(false)}
+          onSave={(updated) => {
+            if (onUpdateProfile) {
+              onUpdateProfile(updated);
+            }
+          }}
+        />
       )}
     </div>
   );

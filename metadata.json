@@ -1,6 +1,6 @@
 {
-  "name": "PG Finder & Booking",
-  "description": "Streamlined PG accommodation finder with map exploration, financial transparency breakdown, real-time bed availability, daily food menu, verified resident reviews, and secure instant payment.",
+  "name": "Apna PG",
+  "description": "Apna PG - Ahmedabad's premier verified student & professional co-living network with zero brokerage, map search, room booking, food schedule, and 24/7 StayAI assistance.",
   "requestFramePermissions": ["geolocation"],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }
