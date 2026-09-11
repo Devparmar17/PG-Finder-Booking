@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { UserProfile } from '../types';
 import { ApnaPgLogo } from './ApnaPgLogo';
+import { SocialAuthDialog, SocialAuthResult } from './SocialAuthDialog';
 
 interface AuthModalProps {
   onLoginSuccess: (user: UserProfile) => void;
@@ -31,6 +32,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onLoginSuccess }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [activeProvider, setActiveProvider] = useState<'google' | 'apple' | 'email' | 'phone'>('email');
+  const [socialDialogProvider, setSocialDialogProvider] = useState<'google' | 'apple' | null>(null);
 
   // Pre-details Onboarding Profile States
   const [profileData, setProfileData] = useState<{
@@ -78,31 +80,37 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onLoginSuccess }) => {
     }, 500);
   };
 
-  // Handle small round Google & Apple login buttons
+  // Trigger small round Google & Apple login modal
   const handleSocialAuth = (provider: 'google' | 'apple') => {
     setActiveProvider(provider);
+    setSocialDialogProvider(provider);
+  };
+
+  // Handle successful Google or Apple authentication
+  const handleSocialAuthSuccess = (res: SocialAuthResult) => {
+    setSocialDialogProvider(null);
     setIsSubmitting(true);
-    setErrorMessage('');
 
     setTimeout(() => {
       setIsSubmitting(false);
-      if (provider === 'google') {
-        setProfileData((prev) => ({
-          ...prev,
-          name: 'Dev Parmar',
-          email: 'devparmar3030@gmail.com',
-          avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80',
-        }));
-      } else {
-        setProfileData((prev) => ({
-          ...prev,
-          name: 'Dev Parmar (Apple)',
-          email: 'devparmar.apple@privaterelay.appleid.com',
-          avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&auto=format&fit=crop&q=80',
-        }));
-      }
-      setView('pre_details');
-    }, 500);
+      const userProfile: UserProfile = {
+        id: `user-${Date.now()}`,
+        name: res.name || 'Dev Parmar',
+        email: res.email || 'devparmar3030@gmail.com',
+        phone: '+91 98765 43210',
+        avatar: res.avatar,
+        city: 'Ahmedabad',
+        gender: 'male',
+        userType: 'student',
+        institutionOrCompany: 'Ahmedabad University / Tech Hub',
+        kycStatus: 'Verified',
+        emergencyContact: '+91 98250 99881 (Parent)',
+        authProvider: res.provider,
+        dietPreference: 'veg',
+        bloodGroup: 'B+',
+      };
+      onLoginSuccess(userProfile);
+    }, 400);
   };
 
   // Complete pre-details and launch the app
@@ -555,6 +563,16 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onLoginSuccess }) => {
         )}
 
       </div>
+
+      {/* Social Authentication Dialog (Google / Apple) */}
+      {socialDialogProvider && (
+        <SocialAuthDialog
+          isOpen={!!socialDialogProvider}
+          provider={socialDialogProvider}
+          onClose={() => setSocialDialogProvider(null)}
+          onSuccess={handleSocialAuthSuccess}
+        />
+      )}
     </div>
   );
 };
