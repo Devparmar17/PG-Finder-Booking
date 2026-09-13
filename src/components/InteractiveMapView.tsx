@@ -106,6 +106,7 @@ export const InteractiveMapView: React.FC<InteractiveMapViewProps> = ({
       className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex justify-center animate-in fade-in duration-200"
     >
       <div className="bg-[#EBF2F7] w-full max-w-md sm:max-w-xl md:max-w-3xl lg:max-w-4xl xl:max-w-5xl h-full flex flex-col relative overflow-hidden shadow-2xl">
+        <h1 className="sr-only">Interactive Map of Verified Accommodations</h1>
         {/* Map Top Floating Header Controls */}
         <div className="absolute top-0 left-0 right-0 z-30 p-3 sm:p-4 space-y-2 pointer-events-none">
           {/* Top Bar with Back, Search, and Locate button */}
@@ -284,7 +285,7 @@ export const InteractiveMapView: React.FC<InteractiveMapViewProps> = ({
                             isSelected ? 'text-white' : 'text-[#7C3AED]'
                           }`}
                         />
-                        <span>₹{(pg.pricePerMonth / 1000).toFixed(0)}k</span>
+                        <span>₹{(((pg.pricePerMonth ?? 0)) / 1000).toFixed(0)}k</span>
                       </div>
                     </AdvancedMarker>
                   );
@@ -327,8 +328,8 @@ export const InteractiveMapView: React.FC<InteractiveMapViewProps> = ({
                         </div>
                         <div>
                           <div className="font-extrabold text-xs truncate max-w-[100px]">{pg.name}</div>
-                          <div className={`text-[10px] font-bold ${isSelected ? 'text-purple-100' : 'text-[#7C3AED]'}`}>
-                            ₹{pg.pricePerMonth.toLocaleString()}/mo
+                          <div className={`text-[11px] font-bold ${isSelected ? 'text-purple-100' : 'text-[#7C3AED]'}`}>
+                            ₹{(pg.pricePerMonth ?? 0).toLocaleString('en-IN')}/mo
                           </div>
                         </div>
                       </button>
@@ -397,12 +398,12 @@ export const InteractiveMapView: React.FC<InteractiveMapViewProps> = ({
                 {/* Price and Action Buttons */}
                 <div className="flex items-center justify-between mt-2.5 pt-2 border-t border-slate-100">
                   <div>
-                    <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+                    <div className="text-[11px] text-slate-400 font-bold uppercase tracking-wider">
                       Monthly Rent
                     </div>
                     <div className="text-base font-black text-slate-900">
-                      ₹{selectedPG.pricePerMonth.toLocaleString()}{' '}
-                      <span className="text-[10px] font-medium text-slate-400">/mo</span>
+                      ₹{(selectedPG.pricePerMonth ?? 0).toLocaleString('en-IN')}{' '}
+                      <span className="text-[11px] font-medium text-slate-400">/mo</span>
                     </div>
                   </div>
 

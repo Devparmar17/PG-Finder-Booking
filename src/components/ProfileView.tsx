@@ -18,11 +18,11 @@ import {
   Utensils,
   HeartPulse,
   Sparkles,
+  AlertTriangle,
+  Receipt,
 } from 'lucide-react';
-import { INITIAL_USER } from '../data/mockData';
 import { BookingRecord, UserProfile } from '../types';
 import { EditProfileModal } from './EditProfileModal';
-import { SocialAuthDialog, SocialAuthResult } from './SocialAuthDialog';
 
 interface ProfileViewProps {
   currentUser?: UserProfile | null;
@@ -42,41 +42,86 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
 }) => {
   const [downloadedId, setDownloadedId] = useState<string | null>(null);
   const [showEditModal, setShowEditModal] = useState<boolean>(false);
-  const [socialAuthModal, setSocialAuthModal] = useState<'google' | 'apple' | null>(null);
+  const [showSignOutConfirm, setShowSignOutConfirm] = useState<boolean>(false);
 
-  const activeUser: UserProfile = currentUser || INITIAL_USER;
+  const activeUser: UserProfile = currentUser || {
+    name: 'Guest Resident',
+    email: 'guest@apnapg.com',
+    phone: '+91 98765 43210',
+    city: 'Ahmedabad',
+    kycStatus: 'Pending',
+  };
+
   const name = activeUser.name;
   const email = activeUser.email;
   const phone = activeUser.phone;
   const avatar = activeUser.avatar;
-  const city = activeUser.city;
-  const emergencyContact = activeUser.emergencyContact;
-  const institutionOrCompany = activeUser.institutionOrCompany || 'Ahmedabad University / Tech Hub';
-  const userType = activeUser.userType || 'student';
-  const authProvider = activeUser.authProvider || 'google';
-  const dietPreference = activeUser.dietPreference || 'veg';
-  const bloodGroup = activeUser.bloodGroup || 'B+';
+  const city = activeUser.city || 'Ahmedabad';
+  const emergencyContact = activeUser.emergencyContact || 'Not specified';
+  const institutionOrCompany = activeUser.institutionOrCompany;
+  const userType = activeUser.userType;
+  const dietPreference = activeUser.dietPreference;
+  const bloodGroup = activeUser.bloodGroup;
 
-  const handleDownload = (id: string) => {
-    setDownloadedId(id);
-    setTimeout(() => setDownloadedId(null), 2000);
+  const authBadgeLabel =
+    activeUser.authProvider === 'google'
+      ? 'Google OAuth Verified'
+      : activeUser.authProvider === 'apple'
+      ? 'Apple ID Verified'
+      : activeUser.authProvider === 'email'
+      ? 'Email & Password Verified'
+      : 'Mobile OTP & KYC Verified';
+
+  const handleDownloadInvoice = (booking: BookingRecord) => {
+    setDownloadedId(booking.id);
+    
+    // Generate simple printable text receipt
+    const receiptContent = `=========================================
+APNA PG - OFFICIAL BOOKING RECEIPT & INVOICE
+=========================================
+Receipt No: INV-${booking.bookingCode}
+Date: ${booking.createdAt || new Date().toISOString().split('T')[0]}
+Status: Confirmed & Active
+
+TENANT DETAILS:
+Name: ${booking.tenantName}
+Phone: ${booking.tenantPhone}
+Email: ${booking.tenantEmail}
+ID Proof: ${booking.idProofType}
+Emergency Contact: ${booking.emergencyContact}
+
+PROPERTY & STAY DETAILS:
+Property: ${booking.pgName}
+Address: ${booking.pgLocation}
+Room & Bed: Room ${booking.roomNumber.replace(/^Room\s*/i, '')} - ${booking.bedNumber}
+Move-in Date: ${booking.moveInDate}
+Sharing Type: ${booking.sharingType}
+
+PAYMENT BREAKDOWN:
+Token Advance Paid: ₹${(booking.tokenPaid ?? 0).toLocaleString('en-IN')}
+Monthly Rent: ₹${(booking.monthlyRent ?? 0).toLocaleString('en-IN')}/month
+Security Deposit: ₹${(booking.securityDeposit ?? 0).toLocaleString('en-IN')} (100% Refundable)
+Payment Method: ${booking.paymentMethod}
+Transaction ID: ${booking.transactionId}
+
+Zero Brokerage Guarantee • 24/7 Verified Resident Support
+Support: care@apnapg.com | Helpline: +91 98765 43210
+=========================================`;
+
+    const blob = new Blob([receiptContent], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `ApnaPG-Invoice-${booking.bookingCode}.txt`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    setTimeout(() => setDownloadedId(null), 2500);
   };
 
   const handleSaveProfile = (updated: UserProfile) => {
-    if (onUpdateProfile) {
-      onUpdateProfile(updated);
-    }
-  };
-
-  const handleSocialAuthSuccess = (res: SocialAuthResult) => {
-    setSocialAuthModal(null);
-    const updated: UserProfile = {
-      ...activeUser,
-      name: res.name,
-      email: res.email,
-      avatar: res.avatar,
-      authProvider: res.provider,
-    };
     if (onUpdateProfile) {
       onUpdateProfile(updated);
     }
@@ -93,137 +138,46 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
           className="absolute top-4 right-4 px-3 py-1.5 bg-purple-50 hover:bg-purple-100 text-[#7C3AED] border border-purple-200/80 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs hover:scale-105 active:scale-95"
         >
           <Edit3 className="w-3.5 h-3.5" />
-          <span>Change Profile</span>
+          <span>Edit Profile</span>
         </button>
 
-        {/* Avatar with edit click */}
+        {/* Avatar */}
         <div
           onClick={() => setShowEditModal(true)}
           className="w-22 h-22 rounded-full ring-4 ring-purple-500/20 p-0.5 mx-auto mb-3 shadow-md relative group cursor-pointer"
           title="Click to change photo"
         >
-          <img
-            src={avatar}
-            alt={name}
-            className="w-full h-full rounded-full object-cover"
-          />
+          {avatar ? (
+            <img
+              src={avatar}
+              alt={name}
+              className="w-full h-full rounded-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full rounded-full bg-purple-100 text-[#7C3AED] flex items-center justify-center font-bold text-xl">
+              <User className="w-10 h-10" />
+            </div>
+          )}
           <div className="absolute inset-0 bg-purple-900/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
             <Edit3 className="w-5 h-5" />
           </div>
         </div>
 
-        <h2 className="text-xl font-black text-slate-900">{name}</h2>
+        <h1 className="text-xl font-black text-slate-900">{name}</h1>
         <p className="text-xs text-slate-500 mt-0.5 font-medium flex items-center justify-center gap-1">
           <MapPin className="w-3 h-3 text-[#7C3AED]" />
           <span>{city}, Gujarat</span>
         </p>
 
-        {/* KYC Badge & Auth Provider */}
+        {/* KYC Badge & Auth Method Status */}
         <div className="flex items-center justify-center gap-2 mt-3.5 flex-wrap">
           <div className="inline-flex items-center gap-1.5 px-3.5 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200/60 rounded-full text-xs font-bold">
             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-            <span>Aadhaar e-KYC Verified</span>
+            <span>{authBadgeLabel}</span>
           </div>
-
-          {authProvider === 'google' && (
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 text-blue-700 border border-blue-200/80 rounded-full text-xs font-bold">
-              <svg className="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24">
-                <path
-                  fill="#4285F4"
-                  d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"
-                />
-                <path
-                  fill="#34A853"
-                  d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.35 24 12 24z"
-                />
-                <path
-                  fill="#FBBC05"
-                  d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.99 0 12s.45 3.82 1.25 5.42l4.03-3.15z"
-                />
-                <path
-                  fill="#EA4335"
-                  d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.35 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"
-                />
-              </svg>
-              <span>Signed in with Google</span>
-            </div>
-          )}
-
-          {authProvider === 'apple' && (
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-900 text-white border border-slate-700 rounded-full text-xs font-bold">
-              <svg className="w-3.5 h-3.5 fill-current shrink-0" viewBox="0 0 170 170">
-                <path d="M150.37 130.25c-2.45 5.66-5.35 10.87-8.71 15.66-4.58 6.53-8.33 11.05-11.22 13.56-4.48 4.12-9.28 6.23-14.42 6.35-3.69 0-8.14-1.05-13.32-3.18-5.19-2.12-9.97-3.17-14.34-3.17-4.58 0-9.49 1.05-14.75 3.17-5.26 2.13-9.5 3.24-12.74 3.35-4.35.13-9.16-1.9-14.42-6.08-3.7-3.04-7.69-7.79-11.97-14.24-5.33-8.08-9.47-17.15-12.43-27.22-2.96-10.07-4.44-19.68-4.44-28.84 0-13.06 3.34-24.16 10.03-33.3 6.69-9.14 15.26-13.79 25.7-13.96 4.35 0 9.29 1.13 14.81 3.38 5.53 2.25 9.4 3.42 11.62 3.5 1.94-.13 5.92-1.37 11.94-3.73 6.01-2.36 10.9-3.41 14.65-3.15 11.39.87 20.35 5.09 26.89 12.67-10.15 6.17-15.11 14.76-14.88 25.77.23 8.7 3.51 16.03 9.85 21.99 6.34 5.96 13.9 9.38 22.68 10.25-2.08 6.09-4.57 12.42-7.46 19-.94 2.17-1.84 4.36-2.7 6.55zM119.22 33.64c0-7.39 2.65-14.28 7.94-20.67 5.29-6.39 11.83-10.45 19.62-12.18.33 1.25.49 2.37.49 3.36 0 7.39-2.73 14.4-8.19 21.03-5.46 6.63-12.04 10.7-19.74 12.21-.08-1.25-.12-2.5-.12-3.75z" />
-              </svg>
-              <span>Signed in with Apple ID</span>
-            </div>
-          )}
-
-          {authProvider !== 'google' && authProvider !== 'apple' && (
-            <div className="inline-flex items-center gap-1 px-3 py-1 bg-purple-50 text-[#7C3AED] border border-purple-200/60 rounded-full text-xs font-bold">
-              <span>Auth: Mobile Phone OTP</span>
-            </div>
-          )}
-        </div>
-
-        {/* Quick Social Authentication Switcher in Profile */}
-        <div className="mt-4 pt-3.5 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-2.5 bg-purple-50/40 p-3 rounded-2xl border border-purple-100/60">
-          <div className="text-left">
-            <div className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-[#7C3AED]" />
-              <span>Social Authentication & Switch</span>
-            </div>
-            <div className="text-[10px] text-slate-500">
-              Change account or re-authenticate with Google or Apple ID
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2 w-full sm:w-auto">
-            <button
-              id="btn-profile-switch-google"
-              type="button"
-              onClick={() => setSocialAuthModal('google')}
-              className={`flex-1 sm:flex-initial px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs border ${
-                authProvider === 'google'
-                  ? 'bg-blue-600 text-white border-blue-600 ring-2 ring-blue-400/30'
-                  : 'bg-white text-slate-700 hover:bg-slate-50 border-slate-200'
-              }`}
-            >
-              <svg className="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24">
-                <path
-                  fill="#4285F4"
-                  d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"
-                />
-                <path
-                  fill="#34A853"
-                  d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.35 24 12 24z"
-                />
-                <path
-                  fill="#FBBC05"
-                  d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.99 0 12s.45 3.82 1.25 5.42l4.03-3.15z"
-                />
-                <path
-                  fill="#EA4335"
-                  d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.35 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"
-                />
-              </svg>
-              <span>{authProvider === 'google' ? 'Google Active' : 'Sign in Google'}</span>
-            </button>
-
-            <button
-              id="btn-profile-switch-apple"
-              type="button"
-              onClick={() => setSocialAuthModal('apple')}
-              className={`flex-1 sm:flex-initial px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs border ${
-                authProvider === 'apple'
-                  ? 'bg-black text-white border-black ring-2 ring-slate-400/30'
-                  : 'bg-white text-slate-800 hover:bg-slate-50 border-slate-200'
-              }`}
-            >
-              <svg className="w-3.5 h-3.5 fill-current shrink-0" viewBox="0 0 170 170">
-                <path d="M150.37 130.25c-2.45 5.66-5.35 10.87-8.71 15.66-4.58 6.53-8.33 11.05-11.22 13.56-4.48 4.12-9.28 6.23-14.42 6.35-3.69 0-8.14-1.05-13.32-3.18-5.19-2.12-9.97-3.17-14.34-3.17-4.58 0-9.49 1.05-14.75 3.17-5.26 2.13-9.5 3.24-12.74 3.35-4.35.13-9.16-1.9-14.42-6.08-3.7-3.04-7.69-7.79-11.97-14.24-5.33-8.08-9.47-17.15-12.43-27.22-2.96-10.07-4.44-19.68-4.44-28.84 0-13.06 3.34-24.16 10.03-33.3 6.69-9.14 15.26-13.79 25.7-13.96 4.35 0 9.29 1.13 14.81 3.38 5.53 2.25 9.4 3.42 11.62 3.5 1.94-.13 5.92-1.37 11.94-3.73 6.01-2.36 10.9-3.41 14.65-3.15 11.39.87 20.35 5.09 26.89 12.67-10.15 6.17-15.11 14.76-14.88 25.77.23 8.7 3.51 16.03 9.85 21.99 6.34 5.96 13.9 9.38 22.68 10.25-2.08 6.09-4.57 12.42-7.46 19-.94 2.17-1.84 4.36-2.7 6.55zM119.22 33.64c0-7.39 2.65-14.28 7.94-20.67 5.29-6.39 11.83-10.45 19.62-12.18.33 1.25.49 2.37.49 3.36 0 7.39-2.73 14.4-8.19 21.03-5.46 6.63-12.04 10.7-19.74 12.21-.08-1.25-.12-2.5-.12-3.75z" />
-              </svg>
-              <span>{authProvider === 'apple' ? 'Apple ID Active' : 'Sign in Apple'}</span>
-            </button>
+          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 bg-purple-50 text-[#7C3AED] border border-purple-200/60 rounded-full text-xs font-bold">
+            <ShieldCheck className="w-3.5 h-3.5 text-[#7C3AED]" />
+            <span>{bookings.length > 0 ? 'Active Resident' : 'Verified Member'}</span>
           </div>
         </div>
       </div>
@@ -260,25 +214,31 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
 
           <div className="flex items-center justify-between py-2 border-b border-slate-100">
             <div className="flex items-center gap-2.5 text-slate-500">
-              {userType === 'student' ? (
-                <GraduationCap className="w-4 h-4 text-[#7C3AED]" />
-              ) : (
+              {userType === 'working_professional' ? (
                 <Briefcase className="w-4 h-4 text-[#7C3AED]" />
+              ) : (
+                <GraduationCap className="w-4 h-4 text-[#7C3AED]" />
               )}
               <span>Occupation</span>
             </div>
             <span className="font-bold text-slate-800 capitalize">
-              {userType === 'student' ? 'College Student' : 'Working Professional'}
+              {userType === 'working_professional'
+                ? 'Working Professional'
+                : userType === 'student'
+                ? 'College Student'
+                : 'Student / Professional'}
             </span>
           </div>
 
-          <div className="flex items-center justify-between py-2 border-b border-slate-100">
-            <div className="flex items-center gap-2.5 text-slate-500">
-              <Building2 className="w-4 h-4 text-[#7C3AED]" />
-              <span>College / Company</span>
+          {institutionOrCompany && (
+            <div className="flex items-center justify-between py-2 border-b border-slate-100">
+              <div className="flex items-center gap-2.5 text-slate-500">
+                <Building2 className="w-4 h-4 text-[#7C3AED]" />
+                <span>College / Company</span>
+              </div>
+              <span className="font-bold text-slate-800 truncate max-w-[180px]">{institutionOrCompany}</span>
             </div>
-            <span className="font-bold text-slate-800 truncate max-w-[180px]">{institutionOrCompany}</span>
-          </div>
+          )}
 
           <div className="flex items-center justify-between py-2 border-b border-slate-100">
             <div className="flex items-center gap-2.5 text-slate-500">
@@ -292,7 +252,9 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                 ? 'Jain Food'
                 : dietPreference === 'eggetarian'
                 ? 'Eggetarian'
-                : 'Non-Veg'}
+                : dietPreference === 'non_veg'
+                ? 'Non-Veg'
+                : 'Pure Veg (Default)'}
             </span>
           </div>
 
@@ -301,7 +263,9 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
               <HeartPulse className="w-4 h-4 text-[#7C3AED]" />
               <span>Blood Group</span>
             </div>
-            <span className="font-bold text-slate-800">{bloodGroup}</span>
+            <span className="font-bold text-slate-800">
+              {bloodGroup ? bloodGroup : <span className="text-slate-400 font-normal">Not specified</span>}
+            </span>
           </div>
 
           <div className="flex items-center justify-between py-2">
@@ -317,36 +281,52 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
         <div className="bg-white rounded-3xl p-5 border border-slate-200/90 shadow-sm space-y-3.5 text-xs">
           <h3 className="font-extrabold text-sm text-slate-900">Digital Agreements & Invoices</h3>
 
-          {bookings.map((b) => (
-            <div
-              key={b.id}
-              className="p-3.5 bg-slate-50 rounded-2xl flex items-center justify-between border border-slate-200/80"
-            >
-              <div className="flex items-center gap-2.5">
-                <FileText className="w-5 h-5 text-[#7C3AED] shrink-0" />
-                <div>
-                  <div className="font-bold text-slate-800">
-                    {b.pgName} ({b.roomNumber})
-                  </div>
-                  <div className="text-[10px] text-slate-500 font-mono">
-                    Token Invoice • {b.bookingCode}
+          {bookings.length === 0 ? (
+            <div className="p-6 bg-slate-50 rounded-2xl text-center space-y-2 border border-slate-200/70">
+              <Receipt className="w-8 h-8 text-slate-400 mx-auto" />
+              <div className="font-bold text-slate-700">No Invoices Yet</div>
+              <p className="text-slate-500 text-[11px] leading-relaxed">
+                Your booking token receipts and monthly rent slips will automatically appear here once you confirm a stay.
+              </p>
+            </div>
+          ) : (
+            bookings.map((b) => (
+              <div
+                key={b.id}
+                className="p-3.5 bg-slate-50 rounded-2xl flex items-center justify-between border border-slate-200/80"
+              >
+                <div className="flex items-center gap-2.5">
+                  <FileText className="w-5 h-5 text-[#7C3AED] shrink-0" />
+                  <div>
+                    <div className="font-bold text-slate-800">
+                      {b.pgName} (Room {b.roomNumber.replace(/^Room\s*/i, '')})
+                    </div>
+                    <div className="text-[10px] text-slate-500 font-mono">
+                      Token Invoice • {b.bookingCode}
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <button
-                onClick={() => handleDownload(b.id)}
-                className="p-2 rounded-xl bg-purple-50 text-[#7C3AED] hover:bg-purple-100 border border-purple-200/60 transition-colors cursor-pointer"
-                title="Download PDF"
-              >
-                {downloadedId === b.id ? (
-                  <Check className="w-4 h-4 text-emerald-600" />
-                ) : (
-                  <Download className="w-4 h-4" />
-                )}
-              </button>
-            </div>
-          ))}
+                <button
+                  onClick={() => handleDownloadInvoice(b)}
+                  className="p-2 rounded-xl bg-purple-50 text-[#7C3AED] hover:bg-purple-100 border border-purple-200/60 transition-colors cursor-pointer flex items-center gap-1 text-[11px] font-bold"
+                  title="Download Official Receipt"
+                >
+                  {downloadedId === b.id ? (
+                    <>
+                      <Check className="w-3.5 h-3.5 text-emerald-600" />
+                      <span className="text-emerald-700">Downloaded</span>
+                    </>
+                  ) : (
+                    <>
+                      <Download className="w-3.5 h-3.5" />
+                      <span>Invoice</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            ))
+          )}
 
           <div className="pt-2 p-3 bg-purple-50/60 rounded-2xl border border-purple-100/90 text-[11px] text-purple-900 flex items-center justify-between">
             <div>
@@ -383,15 +363,15 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
           <div className="flex items-center gap-2.5">
             <HelpCircle className="w-4 h-4 text-[#7C3AED]" />
             <div className="flex items-center gap-2">
-              <span>Help & AI Resident Support</span>
-              <span className="text-[10px] bg-purple-100 text-[#7C3AED] px-2 py-0.5 rounded-full font-bold">24/7 AI Bot</span>
+              <span>Resident Support & Help Desk</span>
+              <span className="text-[10px] bg-purple-100 text-[#7C3AED] px-2 py-0.5 rounded-full font-bold">24/7 Assistance</span>
             </div>
           </div>
           <span className="text-[#7C3AED] font-bold">›</span>
         </button>
 
         <button
-          onClick={onSignOut}
+          onClick={() => setShowSignOutConfirm(true)}
           className="w-full p-3 flex items-center justify-between hover:bg-red-50 rounded-2xl transition-colors text-red-600 cursor-pointer text-left"
         >
           <div className="flex items-center gap-2.5">
@@ -402,6 +382,40 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
         </button>
       </div>
 
+      {/* Sign Out Confirmation Modal */}
+      {showSignOutConfirm && (
+        <div className="fixed inset-0 z-60 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white w-full max-w-sm rounded-3xl p-6 shadow-2xl border border-slate-200 space-y-4 animate-in fade-in zoom-in-95 duration-150">
+            <div className="w-12 h-12 rounded-2xl bg-red-100 text-red-600 flex items-center justify-center mx-auto">
+              <AlertTriangle className="w-6 h-6" />
+            </div>
+            <div className="text-center space-y-1">
+              <h3 className="font-black text-slate-900 text-base">Confirm Sign Out?</h3>
+              <p className="text-xs text-slate-500 leading-relaxed">
+                Signing out will clear your active resident session and local preferences from this browser.
+              </p>
+            </div>
+            <div className="grid grid-cols-2 gap-3 pt-2">
+              <button
+                onClick={() => setShowSignOutConfirm(false)}
+                className="py-2.5 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  setShowSignOutConfirm(false);
+                  if (onSignOut) onSignOut();
+                }}
+                className="py-2.5 px-4 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-xl shadow-xs transition-colors cursor-pointer"
+              >
+                Yes, Sign Out
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Edit Profile Modal */}
       {showEditModal && (
         <EditProfileModal
@@ -411,16 +425,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
           onSave={handleSaveProfile}
         />
       )}
-
-      {/* Social Auth Modal for Google & Apple */}
-      {socialAuthModal && (
-        <SocialAuthDialog
-          isOpen={!!socialAuthModal}
-          provider={socialAuthModal}
-          onClose={() => setSocialAuthModal(null)}
-          onSuccess={handleSocialAuthSuccess}
-        />
-      )}
     </div>
   );
 };
+

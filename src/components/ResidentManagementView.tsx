@@ -60,6 +60,7 @@ import {
 import { BookingRecord, MaintenanceTicket, PGListing, UserProfile } from '../types';
 import { EditProfileModal } from './EditProfileModal';
 import { INITIAL_USER } from '../data/mockData';
+import { jsPDF } from 'jspdf';
 
 interface ResidentManagementViewProps {
   activeBooking: BookingRecord;
@@ -215,13 +216,18 @@ export const ResidentManagementView: React.FC<ResidentManagementViewProps> = ({
     }, 1200);
   };
 
+  // Quick formatters to prevent duplicate words like 'Room Room' or 'Double Sharing Sharing'
+  const cleanRoom = (activeBooking.roomNumber || '201').replace(/^Room\s*/i, '').trim();
+  const cleanSharing = (activeBooking.sharingType || 'Double').replace(/\s*Sharing$/i, '').trim() + ' Sharing';
+  const tenantFirstName = activeBooking.tenantName ? activeBooking.tenantName.split(' ')[0] : 'Resident';
+
   // AI Resident Bot States
   const [aiInput, setAiInput] = useState('');
   const [aiMessages, setAiMessages] = useState<AIMessage[]>([
     {
       id: 'msg-welcome',
       sender: 'bot',
-      text: `Hello ${activeBooking.tenantName.split(' ')[0]}! 👋 I am your 24/7 AI Stay Assistant for ${activeBooking.pgName} (Room ${activeBooking.roomNumber}). Describe any issue (AC, Wi-Fi, plumbing, food, tenancy agreement, move out) or pick a quick symptom below and I will diagnose it and navigate you directly to the solution!`,
+      text: `Hello ${tenantFirstName}! 👋 I am your 24/7 AI Stay Assistant for ${activeBooking.pgName} (Room ${cleanRoom}). Describe any issue (AC, Wi-Fi, plumbing, food, tenancy agreement, move out) or pick a quick symptom below and I will diagnose it and navigate you directly to the solution!`,
       timestamp: 'Just now',
     },
   ]);
@@ -240,59 +246,86 @@ export const ResidentManagementView: React.FC<ResidentManagementViewProps> = ({
   };
 
   const handleCopyAgreementId = () => {
-    navigator.clipboard?.writeText('AGR-BLR-2026-8831');
+    navigator.clipboard?.writeText('AGR-AMD-2026-8831');
     setCopiedAgreementId(true);
     setTimeout(() => setCopiedAgreementId(false), 2000);
   };
 
   const handleDownloadAgreement = () => {
     setDownloadSuccess(true);
-    const agreementContent = `
-============================================================
-              DIGITAL ROOM TENANCY & PG AGREEMENT
-============================================================
-Agreement Ref : AGR-BLR-2026-8831
-Property Name : ${activeBooking.pgName}
-Location      : ${activeBooking.pgLocation}
-Tenant Name   : ${activeBooking.tenantName}
-Tenant Phone  : ${activeBooking.tenantPhone}
-Allocated Room: Room ${activeBooking.roomNumber} (${activeBooking.bedNumber})
-Sharing Type  : ${activeBooking.sharingType} Sharing
-Monthly Rent  : ₹${activeBooking.monthlyRent} / month (Due on 1st to 5th)
-Security Deposit: ₹${activeBooking.securityDeposit} (100% Refundable)
-Electricity   : ₹10 / unit (Sub-meter billing)
-Notice Period : 30 Days mandatory
-Food Services : 3 Meals + Evening High-Tea included
-Wi-Fi Access  : 300 Mbps Unlimited Fiber
-Smart Access  : Biometric ID ${activeBooking.biometricId || 'BIO-THAL-302'}
+    try {
+      const doc = new jsPDF();
+      
+      // Header Banner
+      doc.setFontSize(18);
+      doc.setTextColor(109, 40, 217);
+      doc.text('Apna PG - Stay Terms Summary', 14, 20);
 
-TERMS & CONDITIONS:
-1. Security deposit of ₹${activeBooking.securityDeposit} shall be fully refunded within 24 hours of move-out clearance.
-2. Tenant must provide 30 days prior written notice before vacating.
-3. Sub-meter electricity consumed will be billed at standard tariff.
-4. Cleanliness and quiet hours (10:30 PM - 6:00 AM) are strictly maintained.
+      doc.setFontSize(9);
+      doc.setTextColor(180, 83, 9);
+      doc.text('Sample document - not a legal agreement or a stamped instrument.', 14, 28);
 
-Digitally Signed by:
-[✓ Verified Tenant: ${activeBooking.tenantName}]
-[✓ Verified Landlord: Suresh Patel, Property Manager]
-============================================================
-    `.trim();
+      doc.setTextColor(100, 116, 139);
+      doc.text(`Ref: AGR-AMD-2026-8831  |  Property: ${activeBooking.pgName}, Ahmedabad`, 14, 34);
 
-    const blob = new Blob([agreementContent], { type: 'text/plain;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `Tenancy_Agreement_${activeBooking.tenantName.replace(/\s+/g, '_')}_Room${activeBooking.roomNumber}.txt`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+      doc.setDrawColor(226, 232, 240);
+      doc.line(14, 38, 196, 38);
 
+      // Section 1: Accommodation Allotment
+      doc.setFontSize(12);
+      doc.setTextColor(15, 23, 42);
+      doc.text('1. Accommodation & Room Allotment', 14, 46);
+
+      doc.setFontSize(9.5);
+      doc.setTextColor(51, 65, 85);
+      doc.text(`Property Name: ${activeBooking.pgName}`, 14, 54);
+      doc.text(`Location: ${activeBooking.pgLocation}`, 14, 60);
+      doc.text(`Resident Name: ${activeBooking.tenantName}`, 14, 66);
+      doc.text(`Resident Phone: ${activeBooking.tenantPhone}`, 14, 72);
+      doc.text(`Allotment: Bed ${activeBooking.bedNumber} in Room ${cleanRoom} (${cleanSharing})`, 14, 78);
+      doc.text('Occupancy Basis: Shared accommodation licence (Permissive lodging, not an exclusive tenancy)', 14, 84);
+
+      // Section 2: Financial Terms
+      doc.setFontSize(12);
+      doc.setTextColor(15, 23, 42);
+      doc.text('2. Financial Terms & Schedule', 14, 96);
+
+      doc.setFontSize(9.5);
+      doc.setTextColor(51, 65, 85);
+      doc.text(`Monthly Rent: Rs. ${(activeBooking.monthlyRent ?? 0).toLocaleString('en-IN')} / month (Due 1st - 5th)`, 14, 104);
+      doc.text(`Security Deposit: Rs. ${(activeBooking.securityDeposit ?? 0).toLocaleString('en-IN')} (100% refundable upon move-out clearance)`, 14, 110);
+      doc.text('Electricity Charges: Rs. 10 / unit billed monthly via individual room sub-meter', 14, 116);
+      doc.text('Notice Period: 30 days mandatory advance digital notice prior to vacating', 14, 122);
+
+      // Section 3: Inclusions & House Rules
+      doc.setFontSize(12);
+      doc.setTextColor(15, 23, 42);
+      doc.text('3. Inclusions & House Rules', 14, 134);
+
+      doc.setFontSize(9.5);
+      doc.setTextColor(51, 65, 85);
+      doc.text('• Food & Mess: 3 Fresh Meals + High Tea daily (Meal skip rebates available in app)', 14, 142);
+      doc.text('• Wi-Fi: 300 Mbps unlimited high-speed fiber internet', 14, 148);
+      doc.text(`• Smart Access: 24/7 Biometric entry (Pass ID: ${activeBooking.biometricId || 'BIO-THAL-302'})`, 14, 154);
+      doc.text('• Quiet Hours: 10:30 PM to 6:30 AM strictly maintained for study & rest', 14, 160);
+      doc.text('• Visitor Policy: Allowed in common ground lounge until 8:00 PM', 14, 166);
+      doc.text('• Living Standards: Non-smoking and alcohol-free co-living community', 14, 172);
+
+      // Section 4: Property Contacts
+      doc.setFontSize(12);
+      doc.setTextColor(15, 23, 42);
+      doc.text('4. Property Contacts', 14, 184);
+
+      doc.setFontSize(9.5);
+      doc.setTextColor(51, 65, 85);
+      doc.text(`Property Manager: Suresh Patel (${pgListing?.managerContact.phone || '+91 98765 43210'})`, 14, 192);
+      doc.text('Resident Support: Apna PG Resident Portal / 24/7 StayAI Support', 14, 198);
+
+      doc.save(`Stay_Terms_${activeBooking.tenantName.replace(/\s+/g, '_')}_Room${activeBooking.roomNumber}.pdf`);
+    } catch (err) {
+      console.error('Failed to generate PDF', err);
+    }
     setTimeout(() => setDownloadSuccess(false), 3000);
-  };
-
-  const handlePrintAgreement = () => {
-    window.print();
   };
 
   const handleCreateTicket = (e: React.FormEvent) => {
@@ -401,7 +434,7 @@ Digitally Signed by:
         botResponse = {
           id: `bot-${Date.now()}`,
           sender: 'bot',
-          text: `Per your Tenancy Agreement, a 30-day notice is required. Your Security Deposit of ₹${activeBooking.securityDeposit.toLocaleString()} is 100% refundable directly to your UPI ID after key handover and electricity sub-meter clearance.`,
+          text: `Per your Tenancy Agreement, a 30-day notice is required. Your Security Deposit of ₹${(activeBooking.securityDeposit ?? 0).toLocaleString('en-IN')} is 100% refundable directly to your UPI ID after key handover and electricity sub-meter clearance.`,
           timestamp: 'Just now',
           diagnosis: {
             category: 'Tenancy & Move-Out',
@@ -413,19 +446,19 @@ Digitally Signed by:
             tab: 'move_out',
           },
         };
-      } else if (lower.includes('agreement') || lower.includes('contract') || lower.includes('rent slip') || lower.includes('rules') || lower.includes('pdf')) {
+      } else if (lower.includes('agreement') || lower.includes('contract') || lower.includes('terms') || lower.includes('rent slip') || lower.includes('rules') || lower.includes('pdf')) {
         botResponse = {
           id: `bot-${Date.now()}`,
           sender: 'bot',
-          text: `Your Room Tenancy Agreement (Ref: AGR-BLR-2026-8831) is active and digitally signed. You can view all legal clauses (rent ₹${activeBooking.monthlyRent}/mo, deposit ₹${activeBooking.securityDeposit}, gate rules) or download an official PDF.`,
+          text: `Your Stay Terms Summary (Ref: AGR-AMD-2026-8831) is available for Room ${activeBooking.roomNumber}. It summarizes your monthly rent (₹${activeBooking.monthlyRent}/mo), deposit (₹${activeBooking.securityDeposit}), sub-meter electricity, mess timings, and house rules. You can view or download the PDF summary directly.`,
           timestamp: 'Just now',
           diagnosis: {
-            category: 'Legal Tenancy Agreement',
-            probableCause: 'Document retrieval & verification',
-            suggestedAction: 'Review full agreement terms or download official PDF copy',
+            category: 'Stay Terms & House Rules',
+            probableCause: 'House policies and accommodation terms review',
+            suggestedAction: 'Review stay terms definition list or download PDF summary',
           },
           navigationTarget: {
-            label: 'Go to Digital Room Agreement Tab',
+            label: 'Go to Stay Terms Tab',
             tab: 'agreement',
           },
         };
@@ -449,7 +482,7 @@ Digitally Signed by:
         botResponse = {
           id: `bot-${Date.now()}`,
           sender: 'bot',
-          text: `Your monthly rent is ₹${activeBooking.monthlyRent.toLocaleString()} (Cycle: 1st of each month). Instant zero-convenience fee payments are accepted via UPI, GPay, PhonePe, or Cards with instant receipt generation.`,
+          text: `Your monthly rent is ₹${(activeBooking.monthlyRent ?? 0).toLocaleString('en-IN')} (Cycle: 1st of each month). Instant zero-convenience fee payments are accepted via UPI, GPay, PhonePe, or Cards with instant receipt generation.`,
           timestamp: 'Just now',
           diagnosis: {
             category: 'Billing & Rent Ledger',
@@ -571,7 +604,7 @@ Digitally Signed by:
                   Allocated Room
                 </div>
                 <div className="text-sm sm:text-base font-black text-purple-300">
-                  Room {activeBooking.roomNumber}{' '}
+                  Room {cleanRoom}{' '}
                   <span className="text-xs text-white font-medium">({activeBooking.bedNumber})</span>
                 </div>
               </div>
@@ -586,9 +619,11 @@ Digitally Signed by:
                     <Wifi className="w-3.5 h-3.5" />
                   </div>
                   <div>
-                    <div className="text-[10px] text-slate-400 font-medium">Room High-Speed Wi-Fi</div>
-                    <div className="font-mono font-bold text-xs text-slate-100">
-                      {activeBooking.wifiCredentials?.pass || 'PGFast@2026'}
+                    <div className="text-[10px] text-slate-400 font-medium">
+                      Wi-Fi: {activeBooking.wifiCredentials?.ssid || 'PG_Fiber_HighSpeed'}
+                    </div>
+                    <div className="font-mono font-bold text-xs text-slate-100 flex items-center gap-1.5">
+                      <span>Key: {activeBooking.wifiCredentials?.pass || 'PGFast@2026'}</span>
                     </div>
                   </div>
                 </div>
@@ -672,25 +707,9 @@ Digitally Signed by:
                       <span className="text-[10px] bg-purple-50 text-[#7C3AED] px-2 py-0.5 rounded-full font-bold border border-purple-200">
                         {residentUser.userType === 'student' ? 'Student' : 'Working Pro'}
                       </span>
-                      {residentUser.authProvider === 'google' && (
-                        <span className="text-[10px] bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full font-bold border border-blue-200 flex items-center gap-1 shadow-2xs">
-                          <svg className="w-3 h-3 shrink-0" viewBox="0 0 24 24">
-                            <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"/>
-                            <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.35 24 12 24z"/>
-                            <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.99 0 12s.45 3.82 1.25 5.42l4.03-3.15z"/>
-                            <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.35 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
-                          </svg>
-                          <span>Google</span>
-                        </span>
-                      )}
-                      {residentUser.authProvider === 'apple' && (
-                        <span className="text-[10px] bg-slate-900 text-white px-2 py-0.5 rounded-full font-bold border border-slate-700 flex items-center gap-1 shadow-2xs">
-                          <svg className="w-3 h-3 fill-current shrink-0" viewBox="0 0 170 170">
-                            <path d="M150.37 130.25c-2.45 5.66-5.35 10.87-8.71 15.66-4.58 6.53-8.33 11.05-11.22 13.56-4.48 4.12-9.28 6.23-14.42 6.35-3.69 0-8.14-1.05-13.32-3.18-5.19-2.12-9.97-3.17-14.34-3.17-4.58 0-9.49 1.05-14.75 3.17-5.26 2.13-9.5 3.24-12.74 3.35-4.35.13-9.16-1.9-14.42-6.08-3.7-3.04-7.69-7.79-11.97-14.24-5.33-8.08-9.47-17.15-12.43-27.22-2.96-10.07-4.44-19.68-4.44-28.84 0-13.06 3.34-24.16 10.03-33.3 6.69-9.14 15.26-13.79 25.7-13.96 4.35 0 9.29 1.13 14.81 3.38 5.53 2.25 9.4 3.42 11.62 3.5 1.94-.13 5.92-1.37 11.94-3.73 6.01-2.36 10.9-3.41 14.65-3.15 11.39.87 20.35 5.09 26.89 12.67-10.15 6.17-15.11 14.76-14.88 25.77.23 8.7 3.51 16.03 9.85 21.99 6.34 5.96 13.9 9.38 22.68 10.25-2.08 6.09-4.57 12.42-7.46 19-.94 2.17-1.84 4.36-2.7 6.55zM119.22 33.64c0-7.39 2.65-14.28 7.94-20.67 5.29-6.39 11.83-10.45 19.62-12.18.33 1.25.49 2.37.49 3.36 0 7.39-2.73 14.4-8.19 21.03-5.46 6.63-12.04 10.7-19.74 12.21-.08-1.25-.12-2.5-.12-3.75z" />
-                          </svg>
-                          <span>Apple ID</span>
-                        </span>
-                      )}
+                      <span className="text-[10px] bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full font-bold border border-emerald-200">
+                        Verified
+                      </span>
                     </div>
                     <p className="text-[11px] text-slate-500 font-medium">
                       {residentUser.institutionOrCompany || 'Resident'} • {residentUser.phone}
@@ -791,10 +810,11 @@ Digitally Signed by:
             </div>
 
             {/* ======================================================================= */}
-            {/* QUICK ACCESS ACTION TILES (AGREEMENT, MOVE OUT, FOOD, TICKETS) */}
+            {/* QUICK ACCESS ACTION TILES (STAY TERMS, MOVE OUT, FOOD, TICKETS) */}
             {/* ======================================================================= */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
               <button
+                id="btn-nav-stay-terms"
                 onClick={() => setActiveTab('agreement')}
                 className="p-3.5 bg-white rounded-2xl border border-slate-200/90 shadow-xs hover:border-purple-300 text-left transition-all group cursor-pointer space-y-1.5"
               >
@@ -802,8 +822,8 @@ Digitally Signed by:
                   <FileText className="w-4.5 h-4.5" />
                 </div>
                 <div>
-                  <div className="text-xs font-bold text-slate-900">Room Agreement</div>
-                  <div className="text-[11px] text-slate-500">E-Stamp & PDF</div>
+                  <div className="text-xs font-bold text-slate-900">Stay Terms</div>
+                  <div className="text-[11px] text-slate-500">Rules & PDF</div>
                 </div>
               </button>
 
@@ -860,15 +880,15 @@ Digitally Signed by:
                     <Building className="w-3.5 h-3.5" />
                   </div>
                   <div>
-                    <h3 className="text-xs sm:text-sm font-extrabold text-slate-900">Room & Agreement Details</h3>
-                    <p className="text-[10px] text-slate-500">Verified tenancy terms & occupancy</p>
+                    <h3 className="text-xs sm:text-sm font-extrabold text-slate-900">Room & Stay Terms</h3>
+                    <p className="text-[10px] text-slate-500">Accommodation summary & house terms</p>
                   </div>
                 </div>
                 <button
                   onClick={() => setActiveTab('agreement')}
                   className="text-xs font-bold text-[#7C3AED] hover:text-purple-800 flex items-center gap-1 cursor-pointer"
                 >
-                  <span>View Full</span>
+                  <span>View Terms</span>
                   <ChevronRight className="w-3.5 h-3.5" />
                 </button>
               </div>
@@ -877,17 +897,17 @@ Digitally Signed by:
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 text-xs">
                 <div className="p-2.5 bg-purple-50/50 rounded-xl border border-purple-100/80 space-y-0.5">
                   <span className="text-[10px] uppercase font-bold text-slate-400">Sharing Mode</span>
-                  <p className="text-xs font-bold text-slate-900 capitalize">{activeBooking.sharingType} Sharing</p>
+                  <p className="text-xs font-bold text-slate-900 capitalize">{cleanSharing}</p>
                 </div>
 
                 <div className="p-2.5 bg-purple-50/50 rounded-xl border border-purple-100/80 space-y-0.5">
                   <span className="text-[10px] uppercase font-bold text-slate-400">Monthly Rent</span>
-                  <p className="text-xs font-bold text-[#2563EB]">₹{activeBooking.monthlyRent.toLocaleString()} / mo</p>
+                  <p className="text-xs font-bold text-[#2563EB]">₹{(activeBooking.monthlyRent ?? 0).toLocaleString('en-IN')} / mo</p>
                 </div>
 
                 <div className="p-2.5 bg-purple-50/50 rounded-xl border border-purple-100/80 space-y-0.5">
                   <span className="text-[10px] uppercase font-bold text-slate-400">Security Deposit</span>
-                  <p className="text-xs font-bold text-emerald-700">₹{activeBooking.securityDeposit.toLocaleString()} (100% Refundable)</p>
+                  <p className="text-xs font-bold text-emerald-700">₹{(activeBooking.securityDeposit ?? 0).toLocaleString('en-IN')} (100% Refundable)</p>
                 </div>
 
                 <div className="p-2.5 bg-purple-50/50 rounded-xl border border-purple-100/80 space-y-0.5">
@@ -915,7 +935,7 @@ Digitally Signed by:
                 <div className="space-y-0.5">
                   <span className="text-xs font-medium text-slate-500">Next Rent Cycle</span>
                   <div className="text-lg sm:text-xl font-black text-slate-900">
-                    ₹{activeBooking.monthlyRent.toLocaleString()}
+                    ₹{(activeBooking.monthlyRent ?? 0).toLocaleString('en-IN')}
                     <span className="text-xs font-normal text-slate-400"> / month</span>
                   </div>
                 </div>
@@ -1016,7 +1036,7 @@ Digitally Signed by:
 
               <div className="flex items-center gap-1.5 sm:gap-2">
                 <span className="text-[10px] sm:text-xs font-bold bg-purple-50 text-[#7C3AED] px-2.5 py-1 rounded-lg border border-purple-200/80 shrink-0">
-                  Room {activeBooking.roomNumber} ({activeBooking.bedNumber})
+                  Room {cleanRoom} ({activeBooking.bedNumber})
                 </span>
                 <button
                   onClick={() => {
@@ -1024,7 +1044,7 @@ Digitally Signed by:
                       {
                         id: 'welcome-reset',
                         sender: 'bot',
-                        text: `Hello ${activeBooking.residentName}! I am your StayAI Assistant for ${activeBooking.pgName}, Room ${activeBooking.roomNumber}. What problem or query can I assist you with today?`,
+                        text: `Hello ${activeBooking.tenantName || 'Resident'}! I am your StayAI Assistant for ${activeBooking.pgName}, Room ${cleanRoom}. What problem or query can I assist you with today?`,
                         timestamp: 'Just now',
                       },
                     ]);
@@ -1196,13 +1216,13 @@ Digitally Signed by:
       )}
 
       {/* ========================================================================= */}
-      {/* TAB 2: DIGITAL ROOM TENANCY AGREEMENT (FORMAL E-STAMP LAYOUT) */}
+      {/* TAB 2: YOUR STAY TERMS (HONEST SUMMARY & DEFINITION LIST) */}
       {/* ========================================================================= */}
       {activeTab === 'agreement' && (
         <div className="px-4 sm:px-6 space-y-4 animate-in fade-in duration-150">
           
-          {/* Agreement Header Controls */}
-          <div className="bg-white rounded-2xl p-4 border border-slate-200/90 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          {/* Header Controls */}
+          <div className="bg-white rounded-2xl p-4 border border-slate-200/90 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setActiveTab('overview')}
@@ -1212,15 +1232,15 @@ Digitally Signed by:
               </button>
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
-                    Digitally Verified E-Stamp
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-purple-700 bg-purple-50 px-2.5 py-0.5 rounded-full border border-purple-200">
+                    Stay Summary
                   </span>
                   <span className="text-xs font-mono font-bold text-slate-500">
-                    Ref: AGR-BLR-2026-8831
+                    Ref: AGR-AMD-2026-8831
                   </span>
                 </div>
                 <h2 className="text-sm sm:text-base font-extrabold text-slate-900 mt-0.5">
-                  Official Room Tenancy & PG Agreement
+                  Your stay terms
                 </h2>
               </div>
             </div>
@@ -1236,153 +1256,139 @@ Digitally Signed by:
               </button>
 
               <button
+                id="btn-download-terms-pdf"
                 onClick={handleDownloadAgreement}
-                className="px-3.5 py-2 bg-[#7C3AED] hover:bg-purple-700 text-white text-xs font-bold rounded-xl flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
+                className="px-3.5 py-2 bg-[#7C3AED] hover:bg-purple-700 text-white text-xs font-bold rounded-xl flex items-center gap-1.5 shadow-xs transition-all cursor-pointer"
               >
                 <Download className="w-3.5 h-3.5" />
                 <span>{downloadSuccess ? 'Downloaded!' : 'Download PDF'}</span>
               </button>
-
-              <button
-                onClick={handlePrintAgreement}
-                className="p-2 bg-purple-50 hover:bg-purple-100 text-[#7C3AED] rounded-xl border border-purple-200 transition-colors cursor-pointer hidden sm:flex"
-                title="Print agreement"
-              >
-                <Printer className="w-4 h-4" />
-              </button>
             </div>
           </div>
 
-          {/* Formal E-Stamp Document Layout */}
-          <div className="bg-white rounded-2xl border-2 border-slate-300 shadow-md p-6 sm:p-8 space-y-6 text-slate-800 font-sans relative">
-            
-            {/* E-Stamp Header Ribbon */}
-            <div className="border-2 border-amber-600/40 bg-amber-50/50 rounded-xl p-4 text-center space-y-1 relative">
-              <div className="text-[11px] font-black tracking-widest text-amber-900 uppercase">
-                GOVERNMENT OF INDIA • E-STAMP CERTIFICATE OF TENANCY
+          {/* Visible Banner: Sample document notice */}
+          <div className="bg-amber-50 border border-amber-200/90 rounded-2xl p-4 text-amber-900 flex items-start gap-3 shadow-2xs">
+            <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+            <div className="space-y-0.5">
+              <div className="text-xs sm:text-sm font-bold text-amber-950">
+                Sample document - not a legal agreement or a stamped instrument.
               </div>
-              <div className="text-[10px] text-amber-800 font-mono">
-                Certificate No: IN-KA993847291048L • Stamp Duty: ₹100/- • Bengaluru Sub-Registrar
-              </div>
-              <div className="text-[10px] text-emerald-700 font-bold flex items-center justify-center gap-1 pt-0.5">
-                <BadgeCheck className="w-3.5 h-3.5" />
-                <span>Digitally Authenticated & Aadhaar e-Signed</span>
-              </div>
+              <p className="text-[11px] sm:text-xs text-amber-800 leading-relaxed">
+                This document is a summary of standard house rules, fees, and accommodation terms for resident stay at {activeBooking.pgName}, Ahmedabad. It does not constitute a statutory stamped instrument.
+              </p>
             </div>
+          </div>
 
-            {/* Document Title */}
-            <div className="text-center space-y-1 border-b border-slate-200 pb-4">
-              <h1 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight uppercase">
-                Residential PG Accomodation & Tenancy Agreement
-              </h1>
+          {/* Clean Stay Terms Summary Container */}
+          <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs p-5 sm:p-7 space-y-6 text-slate-800 font-sans">
+            
+            {/* Document Title Header */}
+            <div className="border-b border-slate-200/80 pb-4 space-y-1">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                <h1 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">
+                  Your stay terms
+                </h1>
+                <span className="text-xs font-mono font-medium text-slate-500">
+                  Ref: AGR-AMD-2026-8831 • Ahmedabad
+                </span>
+              </div>
               <p className="text-xs text-slate-500">
-                Executed under Section 107 of Transfer of Property Act, 1882
+                PG Accommodation & Shared Living Terms • {activeBooking.pgName}
               </p>
             </div>
 
-            {/* Parties Section */}
+            {/* Resident & Property Parties */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
               <div className="p-4 bg-slate-50 rounded-xl border border-slate-200/80 space-y-1.5">
                 <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                  Landlord / Property Provider (First Party)
+                  Property Provider
                 </div>
                 <div className="font-bold text-slate-900 text-sm">{activeBooking.pgName}</div>
                 <div className="text-slate-600">{activeBooking.pgLocation}</div>
                 <div className="text-slate-500 text-[11px]">
-                  Property Manager: Suresh Patel ({pgListing?.managerContact.phone || '+919876543210'})
+                  Property Manager: Suresh Patel ({pgListing?.managerContact.phone || '+91 98765 43210'})
                 </div>
               </div>
 
-              <div className="p-4 bg-purple-50/50 rounded-xl border border-purple-100 space-y-1.5">
+              <div className="p-4 bg-slate-50 rounded-xl border border-slate-200/80 space-y-1.5">
                 <div className="text-[10px] font-bold uppercase tracking-wider text-purple-600">
-                  Resident Tenant (Second Party)
+                  Resident
                 </div>
                 <div className="font-bold text-slate-900 text-sm">{activeBooking.tenantName}</div>
-                <div className="text-slate-600">Contact: {activeBooking.tenantPhone}</div>
-                <div className="text-emerald-700 font-semibold text-[11px] flex items-center gap-1">
-                  <UserCheck className="w-3.5 h-3.5" />
-                  <span>Aadhaar e-KYC Verified & Identity Confirmed</span>
+                <div className="text-slate-600">Phone: {activeBooking.tenantPhone}</div>
+                <div className="text-slate-500 text-[11px]">
+                  Emergency: {residentUser.emergencyContact || '+91 98250 99881 (Parent)'}
                 </div>
               </div>
             </div>
 
-            {/* Structured Tenancy Clauses */}
-            <div className="space-y-4 text-xs leading-relaxed text-slate-700">
-              <div className="p-4 bg-slate-50/80 rounded-xl border border-slate-200 space-y-2">
-                <h4 className="font-extrabold text-slate-900 uppercase text-[11px] tracking-wider">
-                  1. Premises Allocation & Monthly Consideration
-                </h4>
-                <p>
-                  The Landlord hereby grants and licenses unto the Tenant the exclusive right to occupy <strong>Room {activeBooking.roomNumber} ({activeBooking.bedNumber})</strong> with <strong>{activeBooking.sharingType} sharing</strong> arrangements at <strong>{activeBooking.pgName}</strong>.
-                </p>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 text-slate-900 font-semibold">
-                  <div className="p-2 bg-white rounded-lg border border-slate-200">
-                    <span className="text-[10px] text-slate-400 block font-normal">Monthly Rent</span>
-                    ₹{activeBooking.monthlyRent.toLocaleString()} / mo
-                  </div>
-                  <div className="p-2 bg-white rounded-lg border border-slate-200">
-                    <span className="text-[10px] text-slate-400 block font-normal">Security Deposit</span>
-                    ₹{activeBooking.securityDeposit.toLocaleString()} (Refundable)
-                  </div>
-                  <div className="p-2 bg-white rounded-lg border border-slate-200">
-                    <span className="text-[10px] text-slate-400 block font-normal">Electricity</span>
-                    ₹10 / unit (Sub-meter)
-                  </div>
-                  <div className="p-2 bg-white rounded-lg border border-slate-200">
-                    <span className="text-[10px] text-slate-400 block font-normal">Payment Cycle</span>
-                    1st - 5th of Month
-                  </div>
+            {/* Definition List of Useful Content */}
+            <div className="space-y-3">
+              <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-500">
+                Summary of Terms & Charges
+              </h3>
+
+              <dl className="border border-slate-200/90 rounded-xl divide-y divide-slate-100 text-xs sm:text-sm bg-white overflow-hidden">
+                <div className="p-3.5 sm:px-4 sm:py-3.5 grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-4 bg-slate-50/50">
+                  <dt className="font-bold text-slate-600">Accommodation & Occupancy</dt>
+                  <dd className="sm:col-span-2 text-slate-800 font-medium leading-relaxed">
+                    Bed {activeBooking.bedNumber} in Room {cleanRoom} ({cleanSharing}). Occupancy is granted as a permissive lodging licence for shared co-living, not an exclusive tenancy of the room.
+                  </dd>
                 </div>
-              </div>
 
-              <div className="p-4 bg-slate-50/80 rounded-xl border border-slate-200 space-y-2">
-                <h4 className="font-extrabold text-slate-900 uppercase text-[11px] tracking-wider">
-                  2. Security Deposit Refund & Notice Terms
-                </h4>
-                <p>
-                  The tenant has deposited an amount of <strong>₹{activeBooking.securityDeposit.toLocaleString()}</strong>. The entirety of this security deposit is <strong>100% refundable</strong> to the tenant's chosen UPI/Bank account within <strong>24 hours</strong> of vacating, subject to clear key handover, zero structural damages, and timely electricity sub-meter settlement.
-                </p>
-                <p className="text-amber-800 font-medium">
-                  <strong>Notice Requirement:</strong> Either party may terminate this agreement with a minimum <strong>30 days advance digital notice</strong> submitted via the portal.
-                </p>
-              </div>
+                <div className="p-3.5 sm:px-4 sm:py-3.5 grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-4">
+                  <dt className="font-bold text-slate-600">Monthly Rent</dt>
+                  <dd className="sm:col-span-2 text-slate-900 font-bold">
+                    ₹{(activeBooking.monthlyRent ?? 0).toLocaleString('en-IN')} / month (Payable between 1st and 5th of every month)
+                  </dd>
+                </div>
 
-              <div className="p-4 bg-slate-50/80 rounded-xl border border-slate-200 space-y-2">
-                <h4 className="font-extrabold text-slate-900 uppercase text-[11px] tracking-wider">
-                  3. Inclusions, Food Services & House Rules
-                </h4>
-                <ul className="list-disc pl-5 space-y-1">
-                  <li><strong>Meal Services:</strong> 3 freshly prepared meals (Breakfast, Lunch, Dinner) + High Tea are included. Residents may toggle meal skips for automated bill rebates.</li>
-                  <li><strong>Wi-Fi & Internet:</strong> Unlimited high-speed fiber internet (300 Mbps) with dedicated floor routers.</li>
-                  <li><strong>Smart Gate Access:</strong> 24/7 biometric and digital pass security for resident entry.</li>
-                  <li><strong>Quiet Hours:</strong> Respectful quiet hours are maintained between 10:30 PM and 6:30 AM.</li>
-                </ul>
-              </div>
+                <div className="p-3.5 sm:px-4 sm:py-3.5 grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-4 bg-slate-50/50">
+                  <dt className="font-bold text-slate-600">Security Deposit</dt>
+                  <dd className="sm:col-span-2 text-slate-800 font-medium leading-relaxed">
+                    <span className="font-bold text-slate-900">₹{(activeBooking.securityDeposit ?? 0).toLocaleString('en-IN')}</span> (100% refundable to your registered UPI or bank account upon move-out clearance and key handover).
+                  </dd>
+                </div>
+
+                <div className="p-3.5 sm:px-4 sm:py-3.5 grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-4">
+                  <dt className="font-bold text-slate-600">Electricity Charges</dt>
+                  <dd className="sm:col-span-2 text-slate-800 font-medium">
+                    ₹10 per unit consumed, billed monthly as recorded on the dedicated room sub-meter.
+                  </dd>
+                </div>
+
+                <div className="p-3.5 sm:px-4 sm:py-3.5 grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-4 bg-slate-50/50">
+                  <dt className="font-bold text-slate-600">Notice Period</dt>
+                  <dd className="sm:col-span-2 text-slate-800 font-medium leading-relaxed">
+                    A minimum of <span className="font-bold text-slate-900">30 days advance digital notice</span> via the app is required prior to vacating.
+                  </dd>
+                </div>
+
+                <div className="p-3.5 sm:px-4 sm:py-3.5 grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-4">
+                  <dt className="font-bold text-slate-600">Meals & Food Schedule</dt>
+                  <dd className="sm:col-span-2 text-slate-800 font-medium leading-relaxed">
+                    3 freshly prepared daily meals (Breakfast, Lunch, Dinner) plus evening High-Tea are included. Individual meals can be toggled as skipped in the food tab for automated monthly rent rebates.
+                  </dd>
+                </div>
+
+                <div className="p-3.5 sm:px-4 sm:py-3.5 grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-4 bg-slate-50/50">
+                  <dt className="font-bold text-slate-600">House Rules & Inclusions</dt>
+                  <dd className="sm:col-span-2 text-slate-800 font-medium space-y-1.5">
+                    <ul className="list-disc pl-4 space-y-1 text-xs text-slate-700">
+                      <li><strong>Wi-Fi:</strong> Unlimited high-speed fiber internet (300 Mbps) with floor routers.</li>
+                      <li><strong>Smart Gate Access:</strong> 24/7 biometric and digital pass access for registered residents.</li>
+                      <li><strong>Quiet Hours:</strong> Respectful study and rest hours are maintained between 10:30 PM and 6:30 AM.</li>
+                      <li><strong>Visitor Policy:</strong> Day visitors are welcome in the common ground lounge until 8:00 PM.</li>
+                      <li><strong>Living Standards:</strong> Premises are strictly smoke-free and alcohol-free.</li>
+                    </ul>
+                  </dd>
+                </div>
+              </dl>
             </div>
 
-            {/* Digital Signatures Block */}
-            <div className="pt-4 border-t-2 border-slate-200 grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-              <div className="p-3 bg-emerald-50 rounded-xl border border-emerald-200 space-y-1">
-                <div className="text-[10px] font-bold uppercase text-emerald-800">
-                  Tenant Digital Signature
-                </div>
-                <div className="font-bold text-slate-900 font-mono">{activeBooking.tenantName}</div>
-                <div className="text-[10px] text-slate-500">
-                  Signed via Aadhaar OTP • {activeBooking.createdAt}
-                </div>
-                <div className="text-[10px] font-bold text-emerald-700">✓ Digital Signature Valid</div>
-              </div>
-
-              <div className="p-3 bg-purple-50 rounded-xl border border-purple-200 space-y-1">
-                <div className="text-[10px] font-bold uppercase text-purple-800">
-                  Authorized Property Provider Signature
-                </div>
-                <div className="font-bold text-slate-900 font-mono">Suresh Patel (Property Manager)</div>
-                <div className="text-[10px] text-slate-500">
-                  Digitally Stamp Sealed • {activeBooking.pgName}
-                </div>
-                <div className="text-[10px] font-bold text-purple-700">✓ Authenticated by Platform</div>
-              </div>
+            {/* Note at bottom */}
+            <div className="pt-2 text-center text-[11px] text-slate-400 font-medium">
+              Questions regarding these terms? Message property manager Suresh Patel or contact 24/7 StayAI Support.
             </div>
           </div>
         </div>
@@ -1488,7 +1494,7 @@ Digitally Signed by:
                     className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-[#7C3AED] focus:outline-none font-mono"
                   />
                   <p className="text-[10px] text-emerald-600 font-medium mt-1">
-                    ✓ Full ₹{activeBooking.securityDeposit.toLocaleString()} will be dispatched to this account.
+                    ✓ Full ₹{(activeBooking.securityDeposit ?? 0).toLocaleString('en-IN')} will be dispatched to this account.
                   </p>
                 </div>
 
@@ -1511,12 +1517,12 @@ Digitally Signed by:
                   <div className="font-bold text-slate-900 flex items-center justify-between">
                     <span>Estimated Deposit Settlement</span>
                     <span className="text-[#2563EB] font-black text-sm">
-                      ₹{activeBooking.securityDeposit.toLocaleString()}
+                      ₹{(activeBooking.securityDeposit ?? 0).toLocaleString('en-IN')}
                     </span>
                   </div>
                   <div className="flex items-center justify-between text-slate-500 text-[11px]">
                     <span>Security Deposit Held</span>
-                    <span>₹{activeBooking.securityDeposit.toLocaleString()}</span>
+                    <span>₹{(activeBooking.securityDeposit ?? 0).toLocaleString('en-IN')}</span>
                   </div>
                   <div className="flex items-center justify-between text-slate-500 text-[11px]">
                     <span>Notice Compliance Deduction</span>
@@ -1563,7 +1569,7 @@ Digitally Signed by:
                 </div>
                 <div className="flex items-center gap-2 text-slate-600">
                   <span className="w-4 h-4 rounded-full bg-slate-200 text-slate-700 text-[10px] font-bold flex items-center justify-center">3</span>
-                  <span>Direct UPI Transfer of ₹{activeBooking.securityDeposit.toLocaleString()} to <strong>{moveOutUpi}</strong></span>
+                  <span>Direct UPI Transfer of ₹{(activeBooking.securityDeposit ?? 0).toLocaleString('en-IN')} to <strong>{moveOutUpi}</strong></span>
                 </div>
               </div>
 
@@ -1810,7 +1816,7 @@ Digitally Signed by:
                 <div>
                   <span className="text-xs text-slate-500 font-medium">Upcoming Rent Due</span>
                   <div className="text-2xl font-black text-slate-900 mt-0.5">
-                    ₹{activeBooking.monthlyRent.toLocaleString()}
+                    ₹{(activeBooking.monthlyRent ?? 0).toLocaleString('en-IN')}
                   </div>
                 </div>
               </div>
@@ -1829,11 +1835,11 @@ Digitally Signed by:
             </div>
 
             <button
-              onClick={handlePayRentClick}
+              onClick={() => setShowUpiModal(true)}
               className="w-full py-3.5 bg-[#7C3AED] hover:bg-purple-700 active:bg-purple-800 text-white font-bold text-xs rounded-xl shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer"
             >
               <CreditCard className="w-4 h-4" />
-              <span>Pay ₹{activeBooking.monthlyRent.toLocaleString()} via Instant UPI</span>
+              <span>Pay ₹{(activeBooking.monthlyRent ?? 0).toLocaleString('en-IN')} via Instant UPI</span>
             </button>
 
             {rentPaidSuccess && (
@@ -1861,7 +1867,7 @@ Digitally Signed by:
               </div>
               <div className="text-right">
                 <div className="font-black text-slate-900 text-sm">
-                  ₹{activeBooking.tokenPaid.toLocaleString()}
+                  ₹{(activeBooking.tokenPaid ?? 0).toLocaleString('en-IN')}
                 </div>
                 <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
                   Paid ✓
@@ -1901,7 +1907,7 @@ Digitally Signed by:
               </h3>
               <div className="flex items-center justify-between mt-2 pt-2 border-t border-purple-500/40 text-xs">
                 <span className="text-purple-100">{activeBooking.pgName} (Room {activeBooking.roomNumber})</span>
-                <span className="font-black text-lg text-white">₹{activeBooking.monthlyRent.toLocaleString()}</span>
+                <span className="font-black text-lg text-white">₹{(activeBooking.monthlyRent ?? 0).toLocaleString('en-IN')}</span>
               </div>
             </div>
 
@@ -2128,7 +2134,7 @@ Digitally Signed by:
                   ) : (
                     <>
                       <Lock className="w-4 h-4" />
-                      <span>Authorize & Pay ₹{activeBooking.monthlyRent.toLocaleString()}</span>
+                      <span>Authorize & Pay ₹{(activeBooking.monthlyRent ?? 0).toLocaleString('en-IN')}</span>
                     </>
                   )}
                 </button>
@@ -2164,7 +2170,7 @@ Digitally Signed by:
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-slate-500 font-medium">Amount Paid</span>
-                    <span className="font-black text-slate-900 text-sm">₹{upiTxnReceipt.amount.toLocaleString()}</span>
+                    <span className="font-black text-slate-900 text-sm">₹{(upiTxnReceipt.amount ?? 0).toLocaleString('en-IN')}</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-slate-500 font-medium">Payment Mode</span>

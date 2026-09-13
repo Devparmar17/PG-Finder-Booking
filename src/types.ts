@@ -61,6 +61,7 @@ export interface BedSlot {
   floor: number;
   status: 'available' | 'reserved' | 'occupied';
   price: number;
+  priceMonthly?: number;
   type: 'Single' | 'Double' | 'Triple';
 }
 

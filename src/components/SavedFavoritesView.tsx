@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Heart, Trash2, ArrowRight, Star, MapPin, Scale, Check, X } from 'lucide-react';
+import { createPortal } from 'react-dom';
+import { Heart, Trash2, MapPin, Scale, Check, X, ShieldCheck, Zap, Utensils, Award } from 'lucide-react';
 import { PGListing } from '../types';
 
 interface SavedFavoritesViewProps {
@@ -113,8 +114,8 @@ export const SavedFavoritesView: React.FC<SavedFavoritesViewProps> = ({
 
                   <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-100">
                     <div className="text-sm font-bold text-slate-900">
-                      ₹{pg.pricePerMonth.toLocaleString()}
-                      <span className="text-[10px] text-slate-400 font-normal">/mo</span>
+                      ₹{(pg.pricePerMonth ?? 0).toLocaleString('en-IN')}
+                      <span className="text-[11px] text-slate-400 font-normal">/mo</span>
                     </div>
 
                     <div className="flex items-center gap-2">
@@ -133,7 +134,7 @@ export const SavedFavoritesView: React.FC<SavedFavoritesViewProps> = ({
                         onClick={() => onSelectPG(pg)}
                         className="px-3 py-1 bg-purple-50 text-[#7C3AED] hover:bg-purple-100 border border-purple-200 rounded-lg text-xs font-bold cursor-pointer transition-colors"
                       >
-                        View
+                        View Details
                       </button>
                     </div>
                   </div>
@@ -144,42 +145,138 @@ export const SavedFavoritesView: React.FC<SavedFavoritesViewProps> = ({
         </div>
       )}
 
-      {/* Comparison Modal */}
-      {showCompareModal && comparedPGObjects.length >= 2 && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white w-full max-w-lg md:max-w-2xl rounded-2xl p-5 sm:p-6 shadow-xl space-y-4 max-h-[85vh] overflow-y-auto border border-slate-200">
-            <div className="flex justify-between items-center border-b border-slate-200 pb-3">
-              <h2 className="font-bold text-base text-slate-900">Side-by-Side PG Comparison</h2>
-              <button onClick={() => setShowCompareModal(false)} className="p-1 text-slate-400 hover:text-slate-600 cursor-pointer">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-xs">
-              {comparedPGObjects.map((pg) => (
-                <div key={pg.id} className="bg-slate-50 rounded-xl p-3.5 border border-slate-200 space-y-2">
-                  <img src={pg.images[0]} alt={pg.name} className="w-full h-24 object-cover rounded-lg" />
-                  <div className="font-bold text-sm text-slate-900">{pg.name}</div>
-                  <div className="text-[#7C3AED] font-bold text-sm">₹{pg.pricePerMonth.toLocaleString()}/mo</div>
-                  <div className="text-slate-600">Deposit: ₹{pg.costBreakdown.securityDeposit}</div>
-                  <div className="text-slate-600">Food: {pg.foodIncluded ? '✓ 3 Meals' : 'Optional'}</div>
-                  <div className="text-slate-600">Category: {pg.category.toUpperCase()}</div>
-                  <div className="text-slate-600">Rating: ⭐ {pg.rating}</div>
-                  <button
-                    onClick={() => {
-                      setShowCompareModal(false);
-                      onSelectPG(pg);
-                    }}
-                    className="w-full py-2 bg-[#7C3AED] hover:bg-purple-700 text-white font-bold rounded-xl text-xs transition-colors cursor-pointer"
-                  >
-                    View & Book
-                  </button>
+      {/* Comparison Modal via Portal */}
+      {showCompareModal && comparedPGObjects.length >= 2 && typeof document !== 'undefined' &&
+        createPortal(
+          <div className="fixed inset-0 z-60 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+            <div className="bg-white w-full max-w-xl md:max-w-3xl rounded-3xl p-5 sm:p-6 shadow-2xl space-y-4 max-h-[88vh] overflow-y-auto border border-slate-200 animate-in fade-in zoom-in-95 duration-150">
+              <div className="flex justify-between items-center border-b border-slate-100 pb-3">
+                <div>
+                  <h2 className="font-extrabold text-base text-slate-900 flex items-center gap-2">
+                    <Scale className="w-5 h-5 text-[#7C3AED]" />
+                    Side-by-Side PG Comparison
+                  </h2>
+                  <p className="text-xs text-slate-500">Comparing {comparedPGObjects.length} properties</p>
                 </div>
-              ))}
+                <button
+                  onClick={() => setShowCompareModal(false)}
+                  className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full cursor-pointer transition-colors"
+                  aria-label="Close comparison modal"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Responsive comparison table */}
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs border-collapse">
+                  <thead>
+                    <tr className="border-b border-slate-200">
+                      <th className="py-3 px-2 font-bold text-slate-400 uppercase tracking-wider w-32">Attribute</th>
+                      {comparedPGObjects.map((pg) => (
+                        <th key={pg.id} className="py-3 px-3 min-w-[160px]">
+                          <div className="flex flex-col gap-1.5 relative group">
+                            <button
+                              onClick={() => {
+                                toggleCompare(pg.id);
+                                if (comparedPGObjects.length <= 2) {
+                                  setShowCompareModal(false);
+                                }
+                              }}
+                              className="absolute top-1 right-1 z-10 bg-white/90 hover:bg-red-50 text-slate-400 hover:text-red-500 rounded-full p-1 shadow-sm border border-slate-200 transition-colors cursor-pointer"
+                              title="Remove from comparison"
+                              aria-label={`Remove ${pg.name} from comparison`}
+                            >
+                              <X className="w-3.5 h-3.5" />
+                            </button>
+                            <img src={pg.images[0]} alt={pg.name} className="w-full h-20 object-cover rounded-xl shadow-xs" />
+                            <div className="font-extrabold text-sm text-slate-900 line-clamp-1">{pg.name}</div>
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-purple-700 bg-purple-50 px-2 py-0.5 rounded-md border border-purple-100 w-fit">
+                              {pg.category} PG
+                            </span>
+                          </div>
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    <tr>
+                      <td className="py-2.5 px-2 font-bold text-slate-500">Monthly Rent</td>
+                      {comparedPGObjects.map((pg) => (
+                        <td key={pg.id} className="py-2.5 px-3 font-extrabold text-sm text-[#7C3AED]">
+                          ₹{(pg.pricePerMonth ?? 0).toLocaleString('en-IN')}<span className="text-[11px] text-slate-400 font-normal">/mo</span>
+                        </td>
+                      ))}
+                    </tr>
+                    <tr>
+                      <td className="py-2.5 px-2 font-bold text-slate-500">Deposit</td>
+                      {comparedPGObjects.map((pg) => (
+                        <td key={pg.id} className="py-2.5 px-3 text-slate-800 font-medium">
+                          ₹{(pg.costBreakdown?.securityDeposit ?? ((pg.pricePerMonth ?? 0) * 2)).toLocaleString('en-IN')} (100% Refundable)
+                        </td>
+                      ))}
+                    </tr>
+                    <tr>
+                      <td className="py-2.5 px-2 font-bold text-slate-500">Food Included</td>
+                      {comparedPGObjects.map((pg) => (
+                        <td key={pg.id} className="py-2.5 px-3 text-slate-800">
+                          {pg.foodIncluded ? (
+                            <span className="inline-flex items-center gap-1 text-emerald-700 font-semibold">
+                              <Check className="w-3.5 h-3.5 text-emerald-600" /> 3 Meals Included
+                            </span>
+                          ) : (
+                            <span className="text-slate-500">Optional / Self</span>
+                          )}
+                        </td>
+                      ))}
+                    </tr>
+                    <tr>
+                      <td className="py-2.5 px-2 font-bold text-slate-500">Sharing Options</td>
+                      {comparedPGObjects.map((pg) => (
+                        <td key={pg.id} className="py-2.5 px-3 text-slate-800">
+                          {pg.sharingOptions.join(', ')}
+                        </td>
+                      ))}
+                    </tr>
+                    <tr>
+                      <td className="py-2.5 px-2 font-bold text-slate-500">Rating</td>
+                      {comparedPGObjects.map((pg) => (
+                        <td key={pg.id} className="py-2.5 px-3 text-slate-800 font-medium">
+                          ⭐ {pg.rating} ({pg.reviewCount} verified reviews)
+                        </td>
+                      ))}
+                    </tr>
+                    <tr>
+                      <td className="py-2.5 px-2 font-bold text-slate-500">Brokerage</td>
+                      {comparedPGObjects.map((pg) => (
+                        <td key={pg.id} className="py-2.5 px-3 text-emerald-600 font-bold">
+                          Zero Brokerage
+                        </td>
+                      ))}
+                    </tr>
+                    <tr>
+                      <td className="py-2.5 px-2 font-bold text-slate-500">Action</td>
+                      {comparedPGObjects.map((pg) => (
+                        <td key={pg.id} className="py-3 px-3">
+                          <button
+                            onClick={() => {
+                              setShowCompareModal(false);
+                              onSelectPG(pg);
+                            }}
+                            className="w-full py-2 bg-[#7C3AED] hover:bg-purple-700 text-white font-bold rounded-xl text-xs shadow-xs transition-colors cursor-pointer"
+                          >
+                            View & Book
+                          </button>
+                        </td>
+                      ))}
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
-          </div>
-        </div>
-      )}
+          </div>,
+          document.body
+        )}
     </div>
   );
 };

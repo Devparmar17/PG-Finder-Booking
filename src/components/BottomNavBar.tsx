@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Compass, Key, Heart, User } from 'lucide-react';
 
 export type TabType = 'explore' | 'map' | 'mystay' | 'saved' | 'profile';
@@ -8,6 +9,7 @@ interface BottomNavBarProps {
   onTabChange: (tab: TabType) => void;
   savedCount: number;
   hasActiveStay: boolean;
+  hidden?: boolean;
 }
 
 export const BottomNavBar: React.FC<BottomNavBarProps> = ({
@@ -15,22 +17,27 @@ export const BottomNavBar: React.FC<BottomNavBarProps> = ({
   onTabChange,
   savedCount,
   hasActiveStay,
+  hidden,
 }) => {
+  if (hidden) return null;
+
   const navItems = [
-    { id: 'explore' as TabType, label: 'Explore', icon: Compass },
+    { id: 'explore' as TabType, label: 'Explore', icon: Compass, path: '/' },
     {
       id: 'saved' as TabType,
       label: 'Saved',
       icon: Heart,
       badgeCount: savedCount > 0 ? savedCount : undefined,
+      path: '/saved',
     },
     {
       id: 'mystay' as TabType,
       label: 'My Stay',
       icon: Key,
       badge: hasActiveStay ? 'Active' : undefined,
+      path: '/mystay',
     },
-    { id: 'profile' as TabType, label: 'Profile', icon: User },
+    { id: 'profile' as TabType, label: 'Profile', icon: User, path: '/profile' },
   ];
 
   return (
@@ -43,11 +50,12 @@ export const BottomNavBar: React.FC<BottomNavBarProps> = ({
         const isActive = activeTab === item.id;
 
         return (
-          <button
+          <Link
             key={item.id}
             id={`nav-tab-${item.id}`}
+            to={item.path}
             onClick={() => onTabChange(item.id)}
-            className={`flex flex-col items-center justify-center py-1 px-3 rounded-xl transition-all relative cursor-pointer ${
+            className={`flex flex-col items-center justify-center py-1 px-3 rounded-xl transition-all relative cursor-pointer no-underline ${
               isActive ? 'text-[#7C3AED] font-bold' : 'text-slate-400 hover:text-slate-700'
             }`}
           >
@@ -56,15 +64,21 @@ export const BottomNavBar: React.FC<BottomNavBarProps> = ({
                 className={`w-5 h-5 transition-transform ${
                   isActive ? 'scale-110 stroke-[2.4] text-[#7C3AED]' : 'stroke-[1.8]'
                 }`}
+                aria-hidden="true"
               />
               {item.badgeCount !== undefined && (
-                <span className="absolute -top-1 -right-2 w-4 h-4 bg-[#7C3AED] text-white text-[9px] font-bold rounded-full flex items-center justify-center ring-2 ring-white">
+                <span className="absolute -top-1 -right-2.5 w-4 h-4 bg-[#7C3AED] text-white text-[11px] font-bold rounded-full flex items-center justify-center ring-2 ring-white">
                   {item.badgeCount}
                 </span>
               )}
               {item.badge && (
-                <span className="absolute -top-1 -right-2.5 px-1 py-0.2 bg-emerald-500 text-white text-[8px] font-bold rounded-full ring-1 ring-white">
-                  {item.badge}
+                <span
+                  className="absolute -top-1 -right-2 flex h-2.5 w-2.5"
+                  title="Active stay booked"
+                  aria-label="Active stay booked"
+                >
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-600 ring-2 ring-white"></span>
                 </span>
               )}
             </div>
@@ -72,7 +86,7 @@ export const BottomNavBar: React.FC<BottomNavBarProps> = ({
             <span className={`text-[11px] mt-1 tracking-tight ${isActive ? 'text-[#7C3AED] font-bold' : 'text-slate-500'}`}>
               {item.label}
             </span>
-          </button>
+          </Link>
         );
       })}
     </nav>

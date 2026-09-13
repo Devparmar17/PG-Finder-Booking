@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import {
   ChevronDown,
   Check,
@@ -21,16 +22,39 @@ interface FilterBarProps {
   onFilterChange: (updates: Partial<FilterState>) => void;
   onOpenAdvancedFilters?: () => void;
   totalResultsCount?: number;
+  onSheetOpenChange?: (isOpen: boolean) => void;
 }
 
 export const FilterBar: React.FC<FilterBarProps> = ({
   filters,
   onFilterChange,
   totalResultsCount,
+  onSheetOpenChange,
 }) => {
   const [activePopBox, setActivePopBox] = useState<
     'price' | 'food' | 'category' | 'sharing' | 'amenities' | null
   >(null);
+
+  const openPopBox = (box: 'price' | 'food' | 'category' | 'sharing' | 'amenities') => {
+    setActivePopBox(box);
+    onSheetOpenChange?.(true);
+  };
+
+  const closePopBox = () => {
+    setActivePopBox(null);
+    onSheetOpenChange?.(false);
+  };
+
+  useEffect(() => {
+    if (!activePopBox) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        closePopBox();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [activePopBox]);
 
   // Temporary local price state for slider inside popbox
   const [tempMaxPrice, setTempMaxPrice] = useState<number>(filters.maxPrice);
@@ -164,7 +188,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
       minRating: 0,
     });
     setTempMaxPrice(30000);
-    setActivePopBox(null);
+    closePopBox();
   };
 
   return (
@@ -175,11 +199,12 @@ export const FilterBar: React.FC<FilterBarProps> = ({
         <button
           id="btn-filter-all"
           onClick={handleResetAll}
-          className={`px-4 py-2 rounded-2xl text-xs font-bold shrink-0 transition-all cursor-pointer ${
+          className={`min-h-[44px] px-4 py-2.5 rounded-2xl text-xs font-bold shrink-0 transition-all cursor-pointer flex items-center justify-center ${
             isAllActive
               ? 'bg-[#7C3AED] text-white shadow-sm'
               : 'bg-purple-50/80 hover:bg-purple-100/80 border border-purple-200/80 text-purple-900'
           }`}
+          aria-label="Show all accommodations without filters"
         >
           All
         </button>
@@ -189,32 +214,34 @@ export const FilterBar: React.FC<FilterBarProps> = ({
           id="btn-filter-price"
           onClick={() => {
             setTempMaxPrice(filters.maxPrice);
-            setActivePopBox('price');
+            openPopBox('price');
           }}
-          className={`flex items-center gap-1.5 px-3.5 py-2 rounded-2xl text-xs font-bold border transition-all cursor-pointer shrink-0 ${
-            filters.maxPrice < 30000
+          className={`min-h-[44px] flex items-center gap-1.5 px-3.5 py-2.5 rounded-2xl text-xs font-bold border transition-all cursor-pointer shrink-0 ${
+            filters.maxPrice && filters.maxPrice < 30000
               ? 'bg-purple-100 border-[#7C3AED] text-[#7C3AED] shadow-xs'
               : 'bg-purple-50/80 hover:bg-purple-100/80 border-purple-200/80 text-purple-900'
           }`}
+          aria-label="Filter by maximum monthly price"
         >
-          <IndianRupee className="w-3.5 h-3.5 text-[#7C3AED]" />
+          <IndianRupee className="w-3.5 h-3.5 text-[#7C3AED]" aria-hidden="true" />
           <span>
-            {filters.maxPrice < 30000 ? `≤ ₹${filters.maxPrice.toLocaleString()}` : 'Price'}
+            {filters.maxPrice && filters.maxPrice < 30000 ? `≤ ₹${(filters.maxPrice ?? 30000).toLocaleString('en-IN')}` : 'Price'}
           </span>
-          <ChevronDown className="w-3.5 h-3.5 text-[#7C3AED]" />
+          <ChevronDown className="w-3.5 h-3.5 text-[#7C3AED]" aria-hidden="true" />
         </button>
 
         {/* 🍴 Food Pop Box Button */}
         <button
           id="btn-filter-food"
-          onClick={() => setActivePopBox('food')}
-          className={`flex items-center gap-1.5 px-3.5 py-2 rounded-2xl text-xs font-bold border transition-all cursor-pointer shrink-0 ${
+          onClick={() => openPopBox('food')}
+          className={`min-h-[44px] flex items-center gap-1.5 px-3.5 py-2.5 rounded-2xl text-xs font-bold border transition-all cursor-pointer shrink-0 ${
             filters.foodPreference !== 'all'
               ? 'bg-purple-100 border-[#7C3AED] text-[#7C3AED] shadow-xs'
               : 'bg-purple-50/80 hover:bg-purple-100/80 border-purple-200/80 text-purple-900'
           }`}
+          aria-label="Filter by food preference"
         >
-          <Utensils className="w-3.5 h-3.5 text-[#7C3AED]" />
+          <Utensils className="w-3.5 h-3.5 text-[#7C3AED]" aria-hidden="true" />
           <span>
             {filters.foodPreference === 'included'
               ? '3 Meals Included'
@@ -224,20 +251,21 @@ export const FilterBar: React.FC<FilterBarProps> = ({
               ? 'Self Cooking'
               : 'Food'}
           </span>
-          <ChevronDown className="w-3.5 h-3.5 text-[#7C3AED]" />
+          <ChevronDown className="w-3.5 h-3.5 text-[#7C3AED]" aria-hidden="true" />
         </button>
 
         {/* 👤 Category Pop Box Button */}
         <button
           id="btn-filter-category"
-          onClick={() => setActivePopBox('category')}
-          className={`flex items-center gap-1.5 px-3.5 py-2 rounded-2xl text-xs font-bold border transition-all cursor-pointer shrink-0 ${
+          onClick={() => openPopBox('category')}
+          className={`min-h-[44px] flex items-center gap-1.5 px-3.5 py-2.5 rounded-2xl text-xs font-bold border transition-all cursor-pointer shrink-0 ${
             filters.genderCategory !== 'all'
               ? 'bg-purple-100 border-[#7C3AED] text-[#7C3AED] shadow-xs'
               : 'bg-purple-50/80 hover:bg-purple-100/80 border-purple-200/80 text-purple-900'
           }`}
+          aria-label="Filter by gender category"
         >
-          <Users className="w-3.5 h-3.5 text-[#7C3AED]" />
+          <Users className="w-3.5 h-3.5 text-[#7C3AED]" aria-hidden="true" />
           <span>
             {filters.genderCategory === 'boys'
               ? 'Boys PG'
@@ -247,20 +275,21 @@ export const FilterBar: React.FC<FilterBarProps> = ({
               ? 'Co-Living'
               : 'Category'}
           </span>
-          <ChevronDown className="w-3.5 h-3.5 text-[#7C3AED]" />
+          <ChevronDown className="w-3.5 h-3.5 text-[#7C3AED]" aria-hidden="true" />
         </button>
 
         {/* 🛏 Sharing Pop Box Button */}
         <button
           id="btn-filter-sharing"
-          onClick={() => setActivePopBox('sharing')}
-          className={`flex items-center gap-1.5 px-3.5 py-2 rounded-2xl text-xs font-bold border transition-all cursor-pointer shrink-0 ${
+          onClick={() => openPopBox('sharing')}
+          className={`min-h-[44px] flex items-center gap-1.5 px-3.5 py-2.5 rounded-2xl text-xs font-bold border transition-all cursor-pointer shrink-0 ${
             filters.sharingType !== 'all'
               ? 'bg-purple-100 border-[#7C3AED] text-[#7C3AED] shadow-xs'
               : 'bg-purple-50/80 hover:bg-purple-100/80 border-purple-200/80 text-purple-900'
           }`}
+          aria-label="Filter by room sharing type"
         >
-          <BedDouble className="w-3.5 h-3.5 text-[#7C3AED]" />
+          <BedDouble className="w-3.5 h-3.5 text-[#7C3AED]" aria-hidden="true" />
           <span>
             {filters.sharingType === 'single'
               ? 'Single Bed'
@@ -272,34 +301,43 @@ export const FilterBar: React.FC<FilterBarProps> = ({
               ? '4-Sharing'
               : 'Sharing'}
           </span>
-          <ChevronDown className="w-3.5 h-3.5 text-[#7C3AED]" />
+          <ChevronDown className="w-3.5 h-3.5 text-[#7C3AED]" aria-hidden="true" />
         </button>
 
         {/* ✨ Features / Amenities Pop Box Button */}
         <button
           id="btn-filter-amenities"
-          onClick={() => setActivePopBox('amenities')}
-          className={`flex items-center gap-1.5 px-3.5 py-2 rounded-2xl text-xs font-bold border transition-all cursor-pointer shrink-0 ${
+          onClick={() => openPopBox('amenities')}
+          className={`min-h-[44px] flex items-center gap-1.5 px-3.5 py-2.5 rounded-2xl text-xs font-bold border transition-all cursor-pointer shrink-0 ${
             filters.hasAC || filters.verifiedOnly || filters.hasBiometric || filters.minRating > 0
               ? 'bg-purple-100 border-[#7C3AED] text-[#7C3AED] shadow-xs'
               : 'bg-purple-50/80 hover:bg-purple-100/80 border-purple-200/80 text-purple-900'
           }`}
+          aria-label="Filter by amenities and features"
         >
-          <Sparkles className="w-3.5 h-3.5 text-[#7C3AED]" />
+          <Sparkles className="w-3.5 h-3.5 text-[#7C3AED]" aria-hidden="true" />
           <span>Features</span>
-          <ChevronDown className="w-3.5 h-3.5 text-[#7C3AED]" />
+          <ChevronDown className="w-3.5 h-3.5 text-[#7C3AED]" aria-hidden="true" />
         </button>
       </div>
 
       {/* ========================================================================= */}
       {/* ======================= HOME SCREEN POP BOX OVERLAYS ==================== */}
       {/* ========================================================================= */}
-      {activePopBox && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-end sm:items-center justify-center p-3 animate-in fade-in duration-150">
-          <div className="bg-white w-full max-w-md rounded-2xl p-5 border border-slate-200 shadow-2xl space-y-4 animate-in slide-in-from-bottom-4 duration-200 max-h-[90vh] overflow-y-auto no-scrollbar">
-            
+      {activePopBox && typeof document !== 'undefined' && createPortal(
+        <div
+          id="filter-sheet-portal"
+          className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-150"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) closePopBox();
+          }}
+        >
+          <div
+            className="relative z-60 bg-white w-full max-w-md rounded-t-3xl sm:rounded-2xl border border-slate-200 shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-bottom-4 duration-200"
+            style={{ maxHeight: 'min(85dvh, 640px)' }}
+          >
             {/* Pop Box Top Header */}
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+            <div className="shrink-0 px-5 pt-4 pb-3 border-b border-slate-100 flex items-center justify-between bg-white">
               <div className="flex items-center gap-2.5">
                 <div className="w-9 h-9 rounded-xl bg-purple-100 text-[#7C3AED] flex items-center justify-center font-bold">
                   {activePopBox === 'price' && <IndianRupee className="w-4 h-4" />}
@@ -325,12 +363,16 @@ export const FilterBar: React.FC<FilterBarProps> = ({
               </div>
               <button
                 id="btn-close-popbox"
-                onClick={() => setActivePopBox(null)}
-                className="p-1.5 rounded-xl hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
+                onClick={closePopBox}
+                className="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
+                aria-label="Close filter sheet"
               >
-                <X className="w-5 h-5" />
+                <X className="w-5 h-5" aria-hidden="true" />
               </button>
             </div>
+
+            {/* Scrollable Body */}
+            <div className="flex-1 overflow-y-auto min-h-0 p-5 space-y-4">
 
             {/* ================= 1. PRICE POP BOX CONTENT ================= */}
             {activePopBox === 'price' && (
@@ -338,17 +380,23 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                 {/* Real-time Slider */}
                 <div className="p-4 bg-purple-50/70 rounded-2xl border border-purple-100 space-y-2.5">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-slate-700">Max Monthly Budget</span>
+                    <label htmlFor="input-filter-price-slider" className="text-xs font-bold text-slate-700">Max Monthly Budget</label>
                     <span className="text-base font-extrabold text-[#2563EB]">
-                      {tempMaxPrice >= 30000 ? 'Any Budget' : `₹${tempMaxPrice.toLocaleString()}/mo`}
+                      {tempMaxPrice >= 30000 ? 'Any Budget' : `₹${(tempMaxPrice ?? 30000).toLocaleString('en-IN')}/mo`}
                     </span>
                   </div>
                   <input
+                    id="input-filter-price-slider"
                     type="range"
                     min={5000}
                     max={30000}
                     step={1000}
                     value={tempMaxPrice}
+                    aria-label="Maximum monthly budget"
+                    aria-valuemin={5000}
+                    aria-valuemax={30000}
+                    aria-valuenow={tempMaxPrice}
+                    aria-valuetext={tempMaxPrice >= 30000 ? "Any monthly budget" : `₹${(tempMaxPrice ?? 30000).toLocaleString('en-IN')} per month`}
                     onChange={(e) => {
                       const val = Number(e.target.value);
                       setTempMaxPrice(val);
@@ -356,7 +404,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                     }}
                     className="w-full h-2 bg-purple-200 rounded-lg appearance-none cursor-pointer accent-[#7C3AED]"
                   />
-                  <div className="flex justify-between text-[10px] font-bold text-slate-400">
+                  <div className="flex justify-between text-[10px] font-bold text-slate-400" aria-hidden="true">
                     <span>₹5,000</span>
                     <span>₹15,000</span>
                     <span>₹30,000+</span>
@@ -619,26 +667,32 @@ export const FilterBar: React.FC<FilterBarProps> = ({
               </div>
             )}
 
-            {/* Bottom Actions for Pop Box */}
-            <div className="pt-3 border-t border-slate-100 flex items-center gap-2.5">
+            </div>
+
+            {/* Bottom Sticky Action Footer for Pop Box */}
+            <div
+              className="shrink-0 sticky bottom-0 bg-white border-t border-slate-100 px-5 pt-3 flex items-center gap-2.5 z-10"
+              style={{ paddingBottom: 'calc(16px + env(safe-area-inset-bottom, 0px))' }}
+            >
               <button
                 id="btn-reset-filter"
                 onClick={handleResetAll}
-                className="flex-1 py-3 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-2xl flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                className="flex-1 py-3 px-4 bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-slate-700 text-xs font-bold rounded-2xl flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
                 <span>Reset Filters</span>
               </button>
               <button
                 id="btn-apply-filter"
-                onClick={() => setActivePopBox(null)}
+                onClick={closePopBox}
                 className="flex-1 py-3 px-4 bg-[#7C3AED] hover:bg-purple-700 active:bg-purple-800 text-white text-xs font-bold rounded-2xl shadow-sm transition-all cursor-pointer text-center"
               >
                 Done
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

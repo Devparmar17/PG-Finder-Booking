@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import {
   ArrowLeft,
   Heart,
@@ -36,6 +37,7 @@ import {
 } from 'lucide-react';
 import { PGListing, BedSlot, Review } from '../types';
 import { PGLocationMap } from './PGLocationMap';
+import { getOptimizedImageUrl, getImageSrcSet } from '../lib/imageUtils';
 
 interface PGDetailModalProps {
   pg: PGListing;
@@ -70,7 +72,7 @@ export const PGDetailModal: React.FC<PGDetailModalProps> = ({
   const [copiedLink, setCopiedLink] = useState(false);
 
   // Dynamic price calculation based on category & sharing
-  const basePrice = pg.pricePerMonth;
+  const basePrice = pg.pricePerMonth ?? (pg as any).priceMonthly ?? 8000;
   let sharingMultiplier = 1;
   if (selectedSharing === 'Single') sharingMultiplier = 1.45;
   if (selectedSharing === 'Triple') sharingMultiplier = 0.85;
@@ -117,7 +119,7 @@ export const PGDetailModal: React.FC<PGDetailModalProps> = ({
     }
   };
 
-  return (
+  const modalContent = (
     <div
       id="pg-detail-modal"
       className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex justify-center items-start sm:items-center overflow-y-auto p-0 sm:p-4 animate-in fade-in duration-200"
@@ -128,37 +130,39 @@ export const PGDetailModal: React.FC<PGDetailModalProps> = ({
           <button
             id="btn-detail-back"
             onClick={onClose}
-            className="p-2 rounded-xl hover:bg-purple-50 text-slate-700 hover:text-[#7C3AED] transition-colors cursor-pointer"
-            aria-label="Go back"
+            className="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl hover:bg-purple-50 text-slate-700 hover:text-[#7C3AED] transition-colors cursor-pointer"
+            aria-label="Go back to listings"
           >
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowLeft className="w-5 h-5" aria-hidden="true" />
           </button>
 
-          <h1 className="text-base font-extrabold text-slate-900 uppercase tracking-wide truncate max-w-[200px] sm:max-w-xs text-center">
+          <span className="text-base font-extrabold text-slate-900 uppercase tracking-wide truncate max-w-[200px] sm:max-w-xs text-center" aria-hidden="true">
             {pg.name}
-          </h1>
+          </span>
 
           <div className="flex items-center gap-1">
             {/* Share button */}
             <button
               onClick={handleShare}
-              className="p-2 rounded-xl hover:bg-slate-100 text-slate-600 transition-colors cursor-pointer"
+              className="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl hover:bg-slate-100 text-slate-600 transition-colors cursor-pointer"
               title="Share listing"
+              aria-label="Share listing"
             >
-              {copiedLink ? <Check className="w-5 h-5 text-emerald-600" /> : <Share2 className="w-5 h-5" />}
+              {copiedLink ? <Check className="w-5 h-5 text-emerald-600" aria-hidden="true" /> : <Share2 className="w-5 h-5" aria-hidden="true" />}
             </button>
 
             {/* Favorite button */}
             <button
               id="btn-detail-favorite"
               onClick={(e) => onToggleFavorite(pg.id, e)}
-              className="p-2 rounded-xl hover:bg-red-50 text-slate-600 transition-colors cursor-pointer"
-              aria-label="Save to favorite"
+              className="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl hover:bg-red-50 text-slate-600 transition-colors cursor-pointer"
+              aria-label={isFavorite ? 'Remove from favorites' : 'Save to favorites'}
             >
               <Heart
                 className={`w-5 h-5 transition-colors ${
                   isFavorite ? 'fill-purple-600 text-purple-600' : 'text-purple-600 stroke-[2]'
                 }`}
+                aria-hidden="true"
               />
             </button>
 
@@ -166,33 +170,40 @@ export const PGDetailModal: React.FC<PGDetailModalProps> = ({
             <a
               id="btn-detail-call"
               href={`tel:${pg.managerContact.phone}`}
-              className="p-2 rounded-xl hover:bg-emerald-50 text-emerald-600 transition-colors cursor-pointer"
-              aria-label="Call manager"
+              className="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl hover:bg-emerald-50 text-emerald-600 transition-colors cursor-pointer"
+              aria-label={`Call manager at ${pg.managerContact.phone}`}
             >
-              <Phone className="w-5 h-5" />
+              <Phone className="w-5 h-5" aria-hidden="true" />
             </a>
           </div>
         </div>
 
-        {/* Hero Photo Carousel with 360 Badge */}
+        {/* Hero Photo Carousel with 360 Badge & Dark Scrim */}
         <div className="relative bg-slate-900">
           <div className="relative h-64 sm:h-80 w-full overflow-hidden">
             <img
-              src={pg.images[selectedPhotoIndex] || pg.images[0]}
-              alt={pg.name}
+              src={getOptimizedImageUrl(pg.images[selectedPhotoIndex] || pg.images[0], 800)}
+              srcSet={getImageSrcSet(pg.images[selectedPhotoIndex] || pg.images[0])}
+              sizes="(max-width: 640px) 100vw, 800px"
+              alt={`${pg.name} photo ${selectedPhotoIndex + 1}`}
+              loading="eager"
+              decoding="async"
               className="w-full h-full object-cover transition-all duration-300"
             />
 
+            {/* Dedicated dark scrim behind virtual tour badge to ensure 100% WCAG contrast on white/light photos */}
+            <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/85 via-black/45 to-transparent pointer-events-none" />
+
             {/* Virtual 360 Tour badge button */}
-            <div className="absolute bottom-3 left-3 flex items-center gap-2 px-3 py-1.5 bg-black/75 backdrop-blur-md text-white text-xs font-bold rounded-xl border border-white/20 shadow-md">
+            <div className="absolute bottom-3 left-3 flex items-center gap-2 px-3 py-1.5 bg-black/80 backdrop-blur-md text-white text-xs font-bold rounded-xl border border-white/20 shadow-md">
               <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-[10px]">
                 360°
               </div>
-              <span>Verified Virtual Tour</span>
+              <span className="text-white font-bold drop-shadow-sm">Verified Virtual Tour</span>
             </div>
 
             {/* Image pagination dots */}
-            <div className="absolute bottom-3 right-3 flex items-center gap-1 bg-black/50 backdrop-blur-sm px-2 py-1 rounded-full">
+            <div className="absolute bottom-3 right-3 flex items-center gap-1 bg-black/60 backdrop-blur-sm px-2 py-1 rounded-full">
               {pg.images.map((_, idx) => (
                 <button
                   key={idx}
@@ -200,7 +211,7 @@ export const PGDetailModal: React.FC<PGDetailModalProps> = ({
                   className={`h-1.5 rounded-full transition-all ${
                     selectedPhotoIndex === idx ? 'w-4 bg-white' : 'w-1.5 bg-white/50'
                   }`}
-                  aria-label={`Photo ${idx + 1}`}
+                  aria-label={`Photo ${idx + 1} of ${pg.images.length}`}
                 />
               ))}
             </div>
@@ -212,13 +223,20 @@ export const PGDetailModal: React.FC<PGDetailModalProps> = ({
               <button
                 key={idx}
                 onClick={() => setSelectedPhotoIndex(idx)}
+                aria-label={`Select photo ${idx + 1}`}
                 className={`relative w-16 h-12 rounded-xl overflow-hidden shrink-0 border-2 transition-all cursor-pointer ${
                   selectedPhotoIndex === idx
                     ? 'border-[#7C3AED] scale-105 shadow-md'
                     : 'border-transparent opacity-60 hover:opacity-100'
                 }`}
               >
-                <img src={img} alt="thumbnail" className="w-full h-full object-cover" />
+                <img
+                  src={getOptimizedImageUrl(img, 160)}
+                  alt={`Thumbnail ${idx + 1}`}
+                  loading="lazy"
+                  decoding="async"
+                  className="w-full h-full object-cover"
+                />
               </button>
             ))}
           </div>
@@ -228,19 +246,19 @@ export const PGDetailModal: React.FC<PGDetailModalProps> = ({
         <div className="px-4 sm:px-6 pt-4 pb-3 bg-white border-b border-slate-200/90">
           <div className="flex items-start justify-between gap-2">
             <div>
-              <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
+              <h1 id="pg-detail-main-heading" tabIndex={-1} className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight outline-none">
                 {pg.subTitle || pg.name}
-              </h2>
-              <div className="flex items-center gap-1.5 text-slate-400 text-xs sm:text-sm mt-1 font-medium">
-                <MapPin className="w-4 h-4 text-[#7C3AED] shrink-0" />
+              </h1>
+              <div className="flex items-center gap-1.5 text-slate-500 text-xs sm:text-sm mt-1 font-medium">
+                <MapPin className="w-4 h-4 text-[#7C3AED] shrink-0" aria-hidden="true" />
                 <span>{pg.location.replace(/^[A-Za-z]+,\s*/, '') || 'Ahmedabad-Gujarat'}</span>
               </div>
             </div>
 
-            {/* Price Tag in blue matching screenshot */}
+            {/* Price Tag */}
             <div className="text-right shrink-0">
               <div className="text-2xl sm:text-3xl font-extrabold text-[#2563EB] tracking-tight">
-                {effectivePrice.toLocaleString()}₹<span className="text-xs font-semibold text-slate-700">/Mo</span>
+                ₹{(effectivePrice ?? 0).toLocaleString('en-IN')}<span className="text-xs font-semibold text-slate-700">/Mo</span>
               </div>
               <div className="text-[11px] font-bold text-emerald-600">0% Brokerage</div>
             </div>
@@ -390,8 +408,8 @@ export const PGDetailModal: React.FC<PGDetailModalProps> = ({
                         <div className="text-xs text-slate-500 mt-0.5">{opt.desc}</div>
                       </div>
                       <div className="text-right">
-                        <div className="text-sm font-extrabold text-[#2563EB]">₹{opt.price.toLocaleString()}</div>
-                        <div className="text-[10px] text-slate-400">per month</div>
+                        <div className="text-sm font-extrabold text-[#2563EB]">₹{(opt.price ?? 0).toLocaleString('en-IN')}</div>
+                        <div className="text-[11px] text-slate-400">per month</div>
                       </div>
                     </button>
                   ))}
@@ -440,15 +458,15 @@ export const PGDetailModal: React.FC<PGDetailModalProps> = ({
             <div className="w-7 h-7 rounded-xl bg-purple-100 flex items-center justify-center text-[#7C3AED] border border-purple-200">
               <Layers className="w-4 h-4" />
             </div>
-            <h3 className="text-lg font-extrabold text-slate-900 tracking-tight">
+            <h2 className="text-lg font-extrabold text-slate-900 tracking-tight">
               Financial Transparency
-            </h3>
+            </h2>
           </div>
 
           {/* Cost Breakdown Card */}
           <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/90 shadow-sm">
             <div className="flex items-center justify-between mb-3.5 pb-2.5 border-b border-slate-100">
-              <div className="font-extrabold text-sm text-slate-900">Cost Breakdown</div>
+              <h3 className="font-extrabold text-sm text-slate-900">Cost Breakdown</h3>
               <div className="flex items-center gap-1 text-xs font-bold text-emerald-600">
                 <Check className="w-3.5 h-3.5 stroke-[3]" />
                 <span>No Extra Charge</span>
@@ -459,7 +477,7 @@ export const PGDetailModal: React.FC<PGDetailModalProps> = ({
               {/* Monthly Rent */}
               <div className="flex items-center justify-between">
                 <span className="text-slate-600 font-medium">Monthly Rent</span>
-                <span className="font-extrabold text-[#2563EB]">{effectivePrice.toLocaleString()} ₹</span>
+                <span className="font-extrabold text-[#2563EB]">{(effectivePrice ?? 0).toLocaleString('en-IN')} ₹</span>
               </div>
 
               {/* Security Deposit */}
@@ -467,7 +485,7 @@ export const PGDetailModal: React.FC<PGDetailModalProps> = ({
                 <div className="flex items-center justify-between">
                   <span className="text-slate-600 font-medium">Security Deposit</span>
                   <span className="font-extrabold text-[#2563EB]">
-                    {securityDeposit.toLocaleString()} ₹
+                    {(securityDeposit ?? 0).toLocaleString('en-IN')} ₹
                   </span>
                 </div>
                 <div className="flex items-center gap-1 text-[11px] font-bold text-emerald-600 mt-1">
@@ -506,7 +524,7 @@ export const PGDetailModal: React.FC<PGDetailModalProps> = ({
           <div className="flex items-center justify-between mb-2.5">
             <div className="flex items-center gap-2">
               <BedDouble className="w-5 h-5 text-[#7C3AED]" />
-              <h3 className="text-sm sm:text-base font-extrabold text-slate-900">Real-Time Bed Selection</h3>
+              <h2 className="text-sm sm:text-base font-extrabold text-slate-900">Real-Time Bed Selection</h2>
             </div>
             <span className="text-[11px] font-bold text-[#7C3AED] bg-purple-50 px-2.5 py-1 rounded-xl border border-purple-200/80">
               {pg.availableBeds.filter((b) => b.status === 'available').length} Beds Available
@@ -514,7 +532,7 @@ export const PGDetailModal: React.FC<PGDetailModalProps> = ({
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-            {pg.availableBeds.slice(0, 4).map((bed) => {
+            {pg.availableBeds.map((bed) => {
               const isSelected = selectedBed?.id === bed.id;
               const isAvailable = bed.status === 'available';
 
@@ -541,9 +559,9 @@ export const PGDetailModal: React.FC<PGDetailModalProps> = ({
                       {isAvailable ? 'Available' : 'Occupied'}
                     </span>
                   </div>
-                  <div className="text-[10px] text-slate-500">{bed.roomNumber} (Fl. {bed.floor})</div>
+                  <div className="text-[10px] text-slate-500">Room {bed.roomNumber.replace(/^Room\s*/i, '')} • Fl. {bed.floor}</div>
                   <div className="text-xs font-black text-[#2563EB] mt-1">
-                    ₹{effectivePrice.toLocaleString()}
+                    ₹{(bed.price ?? bed.priceMonthly ?? effectivePrice ?? 0).toLocaleString('en-IN')}
                   </div>
                 </button>
               );
@@ -557,9 +575,9 @@ export const PGDetailModal: React.FC<PGDetailModalProps> = ({
         {/* Section 4: Weekly Food Menu Schedule (matching screenshot) */}
         <section id="section-food-menu" className="px-4 sm:px-6 py-4">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-lg font-extrabold text-slate-900 tracking-tight">
+            <h2 className="text-lg font-extrabold text-slate-900 tracking-tight">
               Weekly Food Menu
-            </h3>
+            </h2>
             <span className="text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-xl">
               Hygienic & Home-Cooked
             </span>
@@ -598,9 +616,9 @@ export const PGDetailModal: React.FC<PGDetailModalProps> = ({
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between">
-                  <div className="font-extrabold text-xs sm:text-sm text-slate-900">
+                  <h3 className="font-extrabold text-xs sm:text-sm text-slate-900">
                     Breakfast ({currentDayMenu.breakfast.time})
-                  </div>
+                  </h3>
                   {currentDayMenu.breakfast.boxAvailable && (
                     <span className="text-[10px] font-bold text-purple-700 bg-purple-50 border border-purple-100 px-2 py-0.5 rounded-lg">
                       Box Ready
@@ -620,9 +638,9 @@ export const PGDetailModal: React.FC<PGDetailModalProps> = ({
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between">
-                  <div className="font-extrabold text-xs sm:text-sm text-slate-900">
+                  <h3 className="font-extrabold text-xs sm:text-sm text-slate-900">
                     Lunch (Box Available)
-                  </div>
+                  </h3>
                   <span className="text-[11px] text-slate-400 font-medium">12:30 - 2:30 PM</span>
                 </div>
                 <p className="text-xs sm:text-sm text-slate-600 font-medium mt-1 leading-relaxed">
@@ -638,9 +656,9 @@ export const PGDetailModal: React.FC<PGDetailModalProps> = ({
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between">
-                  <div className="font-extrabold text-xs sm:text-sm text-slate-900">
+                  <h3 className="font-extrabold text-xs sm:text-sm text-slate-900">
                     Dinner ({currentDayMenu.dinner.time})
-                  </div>
+                  </h3>
                   <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-lg border border-emerald-100">
                     Hot Buffet
                   </span>
@@ -657,9 +675,9 @@ export const PGDetailModal: React.FC<PGDetailModalProps> = ({
         <section id="section-security-amenities" className="px-4 sm:px-6 py-4">
           <div className="flex items-center gap-2 mb-3">
             <ShieldCheck className="w-5 h-5 text-[#7C3AED]" />
-            <h3 className="text-lg font-extrabold text-slate-900 tracking-tight">
+            <h2 className="text-lg font-extrabold text-slate-900 tracking-tight">
               Security & Amenities
-            </h3>
+            </h2>
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
@@ -684,9 +702,9 @@ export const PGDetailModal: React.FC<PGDetailModalProps> = ({
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <MessageCircle className="w-5 h-5 text-[#7C3AED]" />
-              <h3 className="text-lg font-extrabold text-slate-900 tracking-tight">
+              <h2 className="text-lg font-extrabold text-slate-900 tracking-tight">
                 Resident Reviews
-              </h3>
+              </h2>
             </div>
             <div className="flex items-center gap-1 text-xs font-bold text-slate-700">
               <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
@@ -732,13 +750,15 @@ export const PGDetailModal: React.FC<PGDetailModalProps> = ({
 
           {/* Review Actions */}
           <div className="mt-4 flex flex-col items-center gap-2">
-            <button
-              id="btn-view-more-reviews"
-              onClick={() => setShowAllReviews(!showAllReviews)}
-              className="w-full py-3.5 bg-purple-300 hover:bg-purple-400 text-white font-bold text-xs sm:text-sm rounded-2xl shadow-xs transition-colors cursor-pointer text-center"
-            >
-              {showAllReviews ? 'Show Fewer Reviews' : 'View more Reviews'}
-            </button>
+            {pg.reviews.length > 2 && (
+              <button
+                id="btn-view-more-reviews"
+                onClick={() => setShowAllReviews(!showAllReviews)}
+                className="w-full py-3 bg-purple-50 hover:bg-purple-100 text-[#7C3AED] border border-purple-200 font-bold text-xs sm:text-sm rounded-2xl shadow-xs transition-colors cursor-pointer text-center"
+              >
+                {showAllReviews ? 'Show Fewer Reviews' : `View All ${pg.reviews.length} Reviews`}
+              </button>
+            )}
 
             {onOpenWriteReview && (
               <button
@@ -752,13 +772,17 @@ export const PGDetailModal: React.FC<PGDetailModalProps> = ({
         </section>
 
         {/* Sticky Bottom Booking Bar */}
-        <div className="sticky bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200/90 px-5 py-3.5 shadow-2xl flex items-center justify-between">
+        <div
+          className="sticky bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200/90 px-5 py-3.5 shadow-2xl flex items-center justify-between"
+          style={{ paddingBottom: 'calc(14px + env(safe-area-inset-bottom, 0px))' }}
+        >
           <div>
-            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-              Monthly Rent
+            <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+              Monthly Rent {selectedBed ? `(${selectedBed.bedNumber})` : ''}
             </div>
             <div className="text-xl sm:text-2xl font-extrabold text-[#2563EB]">
-              {effectivePrice.toLocaleString()} ₹<span className="text-xs font-medium text-slate-700">/month</span>
+              ₹{((selectedBed ? (selectedBed.price ?? selectedBed.priceMonthly ?? effectivePrice) : effectivePrice) ?? 0).toLocaleString('en-IN')}
+              <span className="text-xs font-medium text-slate-700">/month</span>
             </div>
           </div>
 
@@ -775,5 +799,7 @@ export const PGDetailModal: React.FC<PGDetailModalProps> = ({
       </div>
     </div>
   );
+
+  return typeof document !== 'undefined' ? createPortal(modalContent, document.body) : modalContent;
 };
 

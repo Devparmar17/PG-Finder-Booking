@@ -1,0 +1,100 @@
+{
+  "user": {
+    "name": "Dev Parmar",
+    "email": "devparmar3030@gmail.com",
+    "phone": "+91 98765 43210",
+    "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80",
+    "city": "Ahmedabad",
+    "kycStatus": "Verified",
+    "currentBookingId": "BK-RAJ-2026-08",
+    "emergencyContact": "+91 98250 99881 (Parent)"
+  },
+  "notifications": [
+    {
+      "id": "n1",
+      "title": "Rent Cycle Reminder",
+      "message": "Your monthly rent of ₹10,000 for Raj PG is due on 1st of next month.",
+      "time": "2 hours ago",
+      "timestamp": "2 hours ago",
+      "read": false,
+      "type": "rent"
+    },
+    {
+      "id": "n2",
+      "title": "Maintenance Update",
+      "message": "Your ticket #TKT-8841 (AC Filter Service) has been marked as Resolved.",
+      "time": "1 day ago",
+      "timestamp": "1 day ago",
+      "read": false,
+      "type": "maintenance"
+    },
+    {
+      "id": "n3",
+      "title": "Special Sunday Dinner",
+      "message": "Raj PG Mess: Special Dal Makhani & Gulab Jamun served tonight 8:00 PM.",
+      "time": "2 days ago",
+      "timestamp": "2 days ago",
+      "read": true,
+      "type": "food"
+    }
+  ],
+  "bookings": [
+    {
+      "id": "BK-RAJ-2026-08",
+      "bookingCode": "PG-AHM-260801-9021",
+      "pgId": "raj-pg-thaltej",
+      "pgName": "Raj PG",
+      "pgImage": "https://images.unsplash.com/photo-1595526114035-0d45ed16cfbf?w=800&auto=format&fit=crop&q=80",
+      "pgLocation": "Thaltej, Ahmedabad-Gujarat",
+      "roomNumber": "201",
+      "bedNumber": "Bed A",
+      "sharingType": "Double Sharing",
+      "moveInDate": "2026-08-01",
+      "tenantName": "Dev Parmar",
+      "tenantPhone": "+91 98765 43210",
+      "tenantEmail": "devparmar3030@gmail.com",
+      "emergencyContact": "+91 98250 99881 (Parent)",
+      "idProofType": "Aadhaar Verified",
+      "monthlyRent": 10000,
+      "securityDeposit": 20000,
+      "tokenPaid": 5000,
+      "dueAmount": 0,
+      "paymentMethod": "UPI",
+      "transactionId": "UPI/202608/998124892",
+      "status": "active",
+      "createdAt": "2026-07-28",
+      "rentCycleDay": 1,
+      "wifiCredentials": { "ssid": "RajPG_HighSpeed_5G", "pass": "RajStay@2026" },
+      "biometricId": "BIO-DEV-8821"
+    }
+  ],
+  "maintenanceTickets": [
+    {
+      "id": "tkt-1",
+      "ticketNumber": "TKT-8841",
+      "pgId": "raj-pg-thaltej",
+      "pgName": "Raj PG",
+      "roomNumber": "201",
+      "category": "Electricity & AC",
+      "description": "AC Cooling filter clean request & remote battery replacement.",
+      "priority": "medium",
+      "status": "Resolved",
+      "createdAt": "2026-08-20",
+      "updatedAt": "2026-08-21",
+      "assignedStaff": "Mahesh Technician (Electrician)"
+    },
+    {
+      "id": "tkt-2",
+      "ticketNumber": "TKT-9102",
+      "pgId": "raj-pg-thaltej",
+      "roomNumber": "201",
+      "pgName": "Raj PG",
+      "category": "Wi-Fi & Internet",
+      "description": "Speed test drop in 5G node on second floor corridor.",
+      "priority": "high",
+      "status": "In Progress",
+      "createdAt": "2026-08-25",
+      "assignedStaff": "Airtel Fiber Team Assigned"
+    }
+  ]
+}

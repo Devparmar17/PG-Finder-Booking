@@ -1,0 +1,17 @@
+{
+  "name": "Apna PG",
+  "short_name": "ApnaPG",
+  "description": "Ahmedabad verified student & professional co-living network with zero brokerage",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FBF9FE",
+  "theme_color": "#7C3AED",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

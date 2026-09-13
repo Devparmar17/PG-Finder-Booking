@@ -1,47 +1,76 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, Suspense, lazy } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import {
   MOCK_PG_LISTINGS,
-  INITIAL_BOOKING,
   INITIAL_MAINTENANCE_TICKETS,
   INITIAL_NOTIFICATIONS,
   INITIAL_USER,
 } from './data/mockData';
 import { PGListing, FilterState, BedSlot, BookingRecord, MaintenanceTicket, Review, NotificationItem, UserProfile } from './types';
+import { loadStore, saveStore, clearStore } from './lib/store';
 import { Header } from './components/Header';
 import { SearchBar } from './components/SearchBar';
 import { FilterBar } from './components/FilterBar';
-import { FilterModal } from './components/FilterModal';
 import { FeaturedCarousel } from './components/FeaturedCarousel';
 import { NearYouMapPreview } from './components/NearYouMapPreview';
 import { PGCard } from './components/PGCard';
-import { PGDetailModal } from './components/PGDetailModal';
-import { InteractiveMapView } from './components/InteractiveMapView';
-import { BookingModal } from './components/BookingModal';
-import { ResidentManagementView } from './components/ResidentManagementView';
-import { SavedFavoritesView } from './components/SavedFavoritesView';
-import { ProfileView } from './components/ProfileView';
-import { NotificationsModal } from './components/NotificationsModal';
-import { WriteReviewModal } from './components/WriteReviewModal';
 import { AuthModal } from './components/AuthModal';
 import { BottomNavBar, TabType } from './components/BottomNavBar';
-import { Sparkles, Building2, Shield, Search } from 'lucide-react';
+import { Footer } from './components/LegalPages';
+import { Sparkles, Building2, Shield, Search, Key } from 'lucide-react';
+
+// Bundle splitting: Lazy-loaded routes and secondary views
+const PGDetailModal = lazy(() =>
+  import('./components/PGDetailModal').then((m) => ({ default: m.PGDetailModal }))
+);
+const BookingModal = lazy(() =>
+  import('./components/BookingModal').then((m) => ({ default: m.BookingModal }))
+);
+const InteractiveMapView = lazy(() =>
+  import('./components/InteractiveMapView').then((m) => ({ default: m.InteractiveMapView }))
+);
+const ResidentManagementView = lazy(() =>
+  import('./components/ResidentManagementView').then((m) => ({ default: m.ResidentManagementView }))
+);
+const SavedFavoritesView = lazy(() =>
+  import('./components/SavedFavoritesView').then((m) => ({ default: m.SavedFavoritesView }))
+);
+const ProfileView = lazy(() =>
+  import('./components/ProfileView').then((m) => ({ default: m.ProfileView }))
+);
+const FilterModal = lazy(() =>
+  import('./components/FilterModal').then((m) => ({ default: m.FilterModal }))
+);
+const NotificationsModal = lazy(() =>
+  import('./components/NotificationsModal').then((m) => ({ default: m.NotificationsModal }))
+);
+const WriteReviewModal = lazy(() =>
+  import('./components/WriteReviewModal').then((m) => ({ default: m.WriteReviewModal }))
+);
+const TermsPage = lazy(() =>
+  import('./components/LegalPages').then((m) => ({ default: m.TermsPage }))
+);
+const PrivacyPage = lazy(() =>
+  import('./components/LegalPages').then((m) => ({ default: m.PrivacyPage }))
+);
+const NotFoundPage = lazy(() =>
+  import('./components/LegalPages').then((m) => ({ default: m.NotFoundPage }))
+);
+
+const ViewLoadingFallback = () => (
+  <div className="flex-1 flex items-center justify-center p-12 min-h-[50vh]">
+    <div className="w-8 h-8 border-3 border-[#7C3AED] border-t-transparent rounded-full animate-spin" />
+  </div>
+);
 
 export default function App() {
-  // Authentication & Onboarding state - default open when app starts
+  // Authentication & Onboarding state - persisted in store
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(() => {
-    const saved = localStorage.getItem('apnapg_user') || localStorage.getItem('stayfinder_user');
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch (e) {
-        return null;
-      }
-    }
-    return null;
+    return loadStore().user;
   });
 
   const [showAuthModal, setShowAuthModal] = useState<boolean>(() => {
-    return !(localStorage.getItem('apnapg_user') || localStorage.getItem('stayfinder_user'));
+    return !loadStore().user;
   });
 
   // Core application state
@@ -51,17 +80,117 @@ export default function App() {
   const [selectedPG, setSelectedPG] = useState<PGListing | null>(null);
   const [bookingPG, setBookingPG] = useState<PGListing | null>(null);
   const [bookingInitialBed, setBookingInitialBed] = useState<BedSlot | undefined>(undefined);
-  const [favorites, setFavorites] = useState<string[]>(['raj-pg-thaltej', 'darshan-pg-bodakdev']); // Raj PG & Darshan default saved
-  const [bookings, setBookings] = useState<BookingRecord[]>([INITIAL_BOOKING]);
+  const [favorites, setFavorites] = useState<string[]>(() => loadStore().savedIds);
+  const [bookings, setBookings] = useState<BookingRecord[]>(() => loadStore().bookings);
   const [maintenanceTickets, setMaintenanceTickets] = useState<MaintenanceTicket[]>(
     INITIAL_MAINTENANCE_TICKETS
   );
   const [notifications, setNotifications] = useState<NotificationItem[]>(INITIAL_NOTIFICATIONS);
 
+  // Filter sheet active tracking to hide bottom nav
+  const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
+
   // Modals visibility
   const [showFilterModal, setShowFilterModal] = useState<boolean>(false);
   const [showNotificationsModal, setShowNotificationsModal] = useState<boolean>(false);
   const [showWriteReviewModal, setShowWriteReviewModal] = useState<boolean>(false);
+
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  // Route & URL sync with view tabs and modals
+  useEffect(() => {
+    const path = location.pathname;
+    if (path === '/') {
+      setActiveTab('explore');
+      setSelectedPG(null);
+      setBookingPG(null);
+    } else if (path === '/saved') {
+      setActiveTab('saved');
+      setSelectedPG(null);
+      setBookingPG(null);
+    } else if (path === '/mystay') {
+      setActiveTab('mystay');
+      setSelectedPG(null);
+      setBookingPG(null);
+    } else if (path === '/profile') {
+      setActiveTab('profile');
+      setSelectedPG(null);
+      setBookingPG(null);
+    } else if (path === '/map') {
+      setActiveTab('map');
+      setSelectedPG(null);
+      setBookingPG(null);
+    } else if (path.startsWith('/pg/')) {
+      const pgId = path.replace('/pg/', '');
+      const found = listings.find((p) => p.id === pgId);
+      if (found) {
+        setSelectedPG(found);
+        setBookingPG(null);
+      }
+    } else if (path.startsWith('/book/')) {
+      const pgId = path.replace('/book/', '');
+      const found = listings.find((p) => p.id === pgId);
+      if (found) {
+        setBookingPG(found);
+        setSelectedPG(null);
+      }
+    }
+  }, [location.pathname, listings]);
+
+  const handleTabChange = (tab: TabType) => {
+    setActiveTab(tab);
+    if (tab === 'explore') navigate('/');
+    else if (tab === 'saved') navigate('/saved');
+    else if (tab === 'mystay') navigate('/mystay');
+    else if (tab === 'profile') navigate('/profile');
+    else if (tab === 'map') navigate('/map');
+  };
+
+  const handleSelectPG = (pg: PGListing) => {
+    setSelectedPG(pg);
+    setBookingPG(null);
+    navigate(`/pg/${pg.id}`);
+  };
+
+  const handleClosePG = () => {
+    setSelectedPG(null);
+    setBookingPG(null);
+    if (location.pathname.startsWith('/pg/') || location.pathname.startsWith('/book/')) {
+      navigate('/');
+    }
+  };
+
+  const handleOpenBooking = (pg: PGListing, selectedBed?: BedSlot) => {
+    setBookingPG(pg);
+    setBookingInitialBed(selectedBed);
+    setSelectedPG(null);
+    navigate(`/book/${pg.id}`);
+  };
+
+  const handleCloseBooking = () => {
+    const prevPG = bookingPG;
+    setBookingPG(null);
+    if (prevPG) {
+      setSelectedPG(prevPG);
+      navigate(`/pg/${prevPG.id}`);
+    } else {
+      navigate('/');
+    }
+  };
+
+  // Persistent storage sync
+  useEffect(() => {
+    saveStore({ savedIds: favorites });
+  }, [favorites]);
+
+  useEffect(() => {
+    saveStore({ bookings });
+  }, [bookings]);
+
+  useEffect(() => {
+    saveStore({ user: currentUser });
+  }, [currentUser]);
 
   // Filter State
   const [filters, setFilters] = useState<FilterState>({
@@ -133,9 +262,10 @@ export default function App() {
   };
 
   const handleSignOut = () => {
-    localStorage.removeItem('apnapg_user');
-    localStorage.removeItem('stayfinder_user');
+    clearStore();
     setCurrentUser(null);
+    setBookings([]);
+    setFavorites([]);
     setShowAuthModal(true);
   };
 
@@ -323,10 +453,108 @@ export default function App() {
   const activeStayPG = listings.find((p) => p.id === activeBooking?.pgId) || listings[0];
   const unreadNotificationsCount = notifications.filter((n) => !n.read).length;
 
+  // Bottom navigation hiding logic when any sheet or modal is open
+  const isAnySheetOpen = Boolean(
+    isFilterSheetOpen ||
+    bookingPG ||
+    showFilterModal ||
+    selectedPG ||
+    showAuthModal ||
+    showNotificationsModal ||
+    showWriteReviewModal
+  );
+
+  // Route checking for legal pages, booking, pg detail, and 404
+  if (location.pathname === '/terms') {
+    return (
+      <Suspense fallback={<ViewLoadingFallback />}>
+        <TermsPage />
+      </Suspense>
+    );
+  }
+
+  if (location.pathname === '/privacy') {
+    return (
+      <Suspense fallback={<ViewLoadingFallback />}>
+        <PrivacyPage />
+      </Suspense>
+    );
+  }
+
+  const knownPaths = ['/', '/saved', '/mystay', '/profile', '/map'];
+  const isPgRoute = location.pathname.startsWith('/pg/');
+  const isBookRoute = location.pathname.startsWith('/book/');
+  const isValidPgRoute = isPgRoute && listings.some((p) => `/pg/${p.id}` === location.pathname);
+  const isValidBookRoute = isBookRoute && listings.some((p) => `/book/${p.id}` === location.pathname);
+
+  if (!knownPaths.includes(location.pathname) && !isValidPgRoute && !isValidBookRoute) {
+    return (
+      <Suspense fallback={<ViewLoadingFallback />}>
+        <NotFoundPage />
+      </Suspense>
+    );
+  }
+
+  // Full-Screen Online Booking View (Replaces PGDetail instead of stacking)
+  if (bookingPG) {
+    return (
+      <Suspense fallback={<ViewLoadingFallback />}>
+        <BookingModal
+          pg={bookingPG}
+          initialBed={bookingInitialBed}
+          currentUser={currentUser}
+          allBookings={bookings}
+          onClose={handleCloseBooking}
+          onBookingComplete={handleBookingComplete}
+        />
+      </Suspense>
+    );
+  }
+
+  // Full-Screen Detailed PG View (Replaces Home instead of overlaying/stacking)
+  if (selectedPG) {
+    return (
+      <Suspense fallback={<ViewLoadingFallback />}>
+        <PGDetailModal
+          pg={selectedPG}
+          onClose={handleClosePG}
+          onBookNow={handleOpenBooking}
+          isFavorite={favorites.includes(selectedPG.id)}
+          onToggleFavorite={handleToggleFavorite}
+          onOpenWriteReview={() => setShowWriteReviewModal(true)}
+        />
+        {showWriteReviewModal && (
+          <Suspense fallback={<ViewLoadingFallback />}>
+            <WriteReviewModal
+              pgName={selectedPG.name}
+              pgId={selectedPG.id}
+              onClose={() => setShowWriteReviewModal(false)}
+              onSubmitReview={handleAddReview}
+            />
+          </Suspense>
+        )}
+      </Suspense>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-slate-900/5 sm:bg-slate-100/70 flex justify-center text-slate-900 antialiased font-sans selection:bg-[#7C3AED] selection:text-white">
+      {/* Skip to main content link as first focusable element (WCAG 2.4.1) */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[9999] focus:px-4 focus:py-2.5 focus:bg-[#7C3AED] focus:text-white focus:font-bold focus:rounded-xl focus:shadow-2xl focus:ring-2 focus:ring-white focus:outline-none text-xs"
+      >
+        Skip to main content
+      </a>
+
       {/* Responsive App Frame Container */}
-      <main className="w-full max-w-md sm:max-w-xl md:max-w-3xl lg:max-w-4xl xl:max-w-5xl bg-[#FBF9FE] min-h-screen relative flex flex-col shadow-2xl border-x border-purple-100/60 overflow-x-hidden transition-all duration-200">
+      <main
+        id="main-content"
+        tabIndex={-1}
+        className="w-full max-w-md sm:max-w-xl md:max-w-3xl lg:max-w-4xl xl:max-w-5xl bg-[#FBF9FE] min-h-screen relative flex flex-col shadow-2xl border-x border-purple-100/60 overflow-x-hidden transition-all duration-200 outline-none"
+      >
+        <h1 className="sr-only">Apna PG - Verified Student and Professional Accommodations</h1>
+
         {/* Top App Header */}
         <Header
           currentUser={currentUser}
@@ -334,7 +562,7 @@ export default function App() {
           onOpenNotifications={() => setShowNotificationsModal(true)}
           selectedCity={selectedCity}
           onCityChange={setSelectedCity}
-          onOpenProfile={() => setActiveTab('profile')}
+          onOpenProfile={() => handleTabChange('profile')}
         />
 
         {/* TAB 1: Explore (Main Screen matching screenshot iPhone 14 & 15 Pro - 41.png) */}
@@ -353,13 +581,14 @@ export default function App() {
               onFilterChange={handleFilterUpdate}
               onOpenAdvancedFilters={() => setShowFilterModal(true)}
               totalResultsCount={filteredListings.length}
+              onSheetOpenChange={setIsFilterSheetOpen}
             />
 
             {/* Featured Stay Section */}
             {!filters.searchQuery && (
               <FeaturedCarousel
                 listings={listings}
-                onSelectPG={(pg) => setSelectedPG(pg)}
+                onSelectPG={handleSelectPG}
                 favorites={favorites}
                 onToggleFavorite={handleToggleFavorite}
                 onSeeAllClick={handleSeeAllListings}
@@ -369,7 +598,7 @@ export default function App() {
             {/* Near You Vector Map Preview Card (matching screenshot) */}
             {!filters.searchQuery && (
               <NearYouMapPreview
-                onOpenMap={() => setActiveTab('map')}
+                onOpenMap={() => handleTabChange('map')}
                 listingsCount={filteredListings.length}
                 nearestPG={filteredListings[0]}
               />
@@ -416,12 +645,12 @@ export default function App() {
                   </button>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
                   {recommendedListings.map((pg) => (
                     <PGCard
                       key={pg.id}
                       pg={pg}
-                      onSelect={(item) => setSelectedPG(item)}
+                      onSelect={(item) => handleSelectPG(item)}
                       isFavorite={favorites.includes(pg.id)}
                       onToggleFavorite={handleToggleFavorite}
                     />
@@ -429,96 +658,126 @@ export default function App() {
                 </div>
               )}
 
-              {/* "View more Listing" Button matching screenshot */}
+              {/* "View more Listing" Button matching screenshot with high contrast */}
               {filteredListings.length > 0 && (
                 <div className="pt-4 pb-2">
                   <button
                     id="btn-view-more-listings"
                     onClick={handleSeeAllListings}
-                    className="w-full py-3.5 px-4 bg-[#B48CF8] hover:bg-[#a375f5] active:bg-[#925ee8] text-white font-bold text-sm rounded-2xl shadow-sm transition-all text-center cursor-pointer"
+                    className="w-full min-h-[44px] py-3.5 px-4 bg-[#7C3AED] hover:bg-[#6D28D9] active:bg-[#5B21B6] text-white font-bold text-sm rounded-2xl shadow-sm transition-all text-center cursor-pointer flex items-center justify-center"
                   >
                     View All {listings.length} Listed PGs
                   </button>
                 </div>
               )}
             </section>
+
+            {/* Footer with Transparency & Legal Policy Links */}
+            <Footer />
           </div>
         )}
 
         {/* TAB 2: Full Interactive Map */}
         {activeTab === 'map' && (
-          <InteractiveMapView
-            listings={filteredListings}
-            onClose={() => setActiveTab('explore')}
-            onSelectPG={(pg) => setSelectedPG(pg)}
-            filters={filters}
-            onFilterChange={handleFilterUpdate}
-            favorites={favorites}
-            onToggleFavorite={handleToggleFavorite}
-          />
+          <Suspense fallback={<ViewLoadingFallback />}>
+            <InteractiveMapView
+              listings={filteredListings}
+              onClose={() => handleTabChange('explore')}
+              onSelectPG={handleSelectPG}
+              filters={filters}
+              onFilterChange={handleFilterUpdate}
+              favorites={favorites}
+              onToggleFavorite={handleToggleFavorite}
+            />
+          </Suspense>
         )}
 
         {/* TAB 3: My Stay Resident Management Hub */}
         {activeTab === 'mystay' && (
-          <ResidentManagementView
-            activeBooking={activeBooking}
-            pgListing={activeStayPG}
-            maintenanceTickets={maintenanceTickets}
-            currentUser={currentUser}
-            onUpdateProfile={handleUpdateProfile}
-            onAddTicket={(ticket) => {
-              const newT: MaintenanceTicket = {
-                ...ticket,
-                id: `TICK-${Date.now()}`,
-                createdAt: new Date().toISOString().split('T')[0],
-                status: 'open',
-              };
-              setMaintenanceTickets((prev) => [newT, ...prev]);
-            }}
-            onPayRent={(bookingId) => {
-              // mark rent paid
-              const notif: NotificationItem = {
-                id: `notif-${Date.now()}`,
-                title: 'Rent Payment Successful',
-                message: `Payment of ₹${activeBooking.monthlyRent} recorded. Receipt available in profile.`,
-                timestamp: 'Just now',
-                read: false,
-                type: 'rent',
-              };
-              setNotifications((prev) => [notif, ...prev]);
-            }}
-            onBackToExplore={() => setActiveTab('explore')}
-          />
+          <Suspense fallback={<ViewLoadingFallback />}>
+            {activeBooking ? (
+              <ResidentManagementView
+                activeBooking={activeBooking}
+                pgListing={activeStayPG}
+                maintenanceTickets={maintenanceTickets}
+                currentUser={currentUser}
+                onUpdateProfile={handleUpdateProfile}
+                onAddTicket={(ticket) => {
+                  const newT: MaintenanceTicket = {
+                    ...ticket,
+                    id: `TICK-${Date.now()}`,
+                    createdAt: new Date().toISOString().split('T')[0],
+                    status: 'open',
+                  };
+                  setMaintenanceTickets((prev) => [newT, ...prev]);
+                }}
+                onPayRent={(bookingId) => {
+                  // mark rent paid
+                  const notif: NotificationItem = {
+                    id: `notif-${Date.now()}`,
+                    title: 'Rent Payment Successful',
+                    message: `Payment of ₹${activeBooking.monthlyRent} recorded. Receipt available in profile.`,
+                    timestamp: 'Just now',
+                    read: false,
+                    type: 'rent',
+                  };
+                  setNotifications((prev) => [notif, ...prev]);
+                }}
+                onBackToExplore={() => setActiveTab('explore')}
+              />
+            ) : (
+              <div className="flex-1 flex flex-col items-center justify-center p-8 text-center min-h-[60vh]">
+                <div className="w-16 h-16 rounded-2xl bg-purple-100 text-[#7C3AED] flex items-center justify-center mb-4 shadow-sm">
+                  <Key className="w-8 h-8 stroke-[2]" />
+                </div>
+                <h3 className="text-xl font-black text-slate-900 mb-2">No Active Stay Found</h3>
+                <p className="text-sm text-slate-500 max-w-sm mb-6 leading-relaxed">
+                  You do not have an active PG booking yet. Book a bed with zero brokerage and a 100% refundable security deposit to access your resident portal.
+                </p>
+                <button
+                  onClick={() => handleTabChange('explore')}
+                  className="px-6 py-3 bg-[#7C3AED] hover:bg-purple-700 text-white text-xs font-bold rounded-xl shadow-md transition-all cursor-pointer min-h-[44px]"
+                >
+                  Explore Verified PGs
+                </button>
+              </div>
+            )}
+          </Suspense>
         )}
 
         {/* TAB 4: Saved Wishlist & Comparison */}
         {activeTab === 'saved' && (
-          <SavedFavoritesView
-            favoritePGs={savedListings}
-            onSelectPG={(pg) => setSelectedPG(pg)}
-            onRemoveFavorite={(pgId) => setFavorites((prev) => prev.filter((id) => id !== pgId))}
-            onExploreMore={() => setActiveTab('explore')}
-          />
+          <Suspense fallback={<ViewLoadingFallback />}>
+            <SavedFavoritesView
+              favoritePGs={savedListings}
+              onSelectPG={handleSelectPG}
+              onRemoveFavorite={(pgId) => setFavorites((prev) => prev.filter((id) => id !== pgId))}
+              onExploreMore={() => handleTabChange('explore')}
+            />
+          </Suspense>
         )}
 
         {/* TAB 5: User Profile & KYC */}
         {activeTab === 'profile' && (
-          <ProfileView
-            currentUser={currentUser}
-            bookings={bookings}
-            onBackToHome={() => setActiveTab('explore')}
-            onOpenSupport={() => setActiveTab('mystay')}
-            onSignOut={handleSignOut}
-            onUpdateProfile={handleUpdateProfile}
-          />
+          <Suspense fallback={<ViewLoadingFallback />}>
+            <ProfileView
+              currentUser={currentUser}
+              bookings={bookings}
+              onBackToHome={() => handleTabChange('explore')}
+              onOpenSupport={() => handleTabChange('mystay')}
+              onSignOut={handleSignOut}
+              onUpdateProfile={handleUpdateProfile}
+            />
+          </Suspense>
         )}
 
         {/* Mobile Bottom Navigation Bar */}
         <BottomNavBar
           activeTab={activeTab}
-          onTabChange={setActiveTab}
+          onTabChange={handleTabChange}
           savedCount={favorites.length}
           hasActiveStay={bookings.length > 0}
+          hidden={isAnySheetOpen}
         />
 
         {/* Login & Pre-Details Onboarding Modal (Opens When App Starts) */}
@@ -526,64 +785,33 @@ export default function App() {
           <AuthModal onLoginSuccess={handleLoginSuccess} />
         )}
 
-        {/* Full-Screen Detailed PG Modal (matching screenshot iPhone 14 & 15 Pro - 12.png) */}
-        {selectedPG && (
-          <PGDetailModal
-            pg={selectedPG}
-            onClose={() => setSelectedPG(null)}
-            onBookNow={(pg, selectedBed) => {
-              setBookingPG(pg);
-              setBookingInitialBed(selectedBed);
-            }}
-            isFavorite={favorites.includes(selectedPG.id)}
-            onToggleFavorite={handleToggleFavorite}
-            onOpenWriteReview={() => setShowWriteReviewModal(true)}
-          />
-        )}
-
-        {/* Online Booking & Transparent Payment Modal */}
-        {bookingPG && (
-          <BookingModal
-            pg={bookingPG}
-            initialBed={bookingInitialBed}
-            onClose={() => setBookingPG(null)}
-            onBookingComplete={handleBookingComplete}
-          />
-        )}
-
         {/* Comprehensive Filter Modal */}
         {showFilterModal && (
-          <FilterModal
-            filters={filters}
-            onFilterChange={handleFilterUpdate}
-            onResetFilters={handleResetFilters}
-            onClose={() => setShowFilterModal(false)}
-            totalResultsCount={filteredListings.length}
-          />
+          <Suspense fallback={null}>
+            <FilterModal
+              filters={filters}
+              onFilterChange={handleFilterUpdate}
+              onResetFilters={handleResetFilters}
+              onClose={() => setShowFilterModal(false)}
+              totalResultsCount={filteredListings.length}
+            />
+          </Suspense>
         )}
 
         {/* Notifications Modal */}
         {showNotificationsModal && (
-          <NotificationsModal
-            notifications={notifications}
-            onClose={() => setShowNotificationsModal(false)}
-            onMarkAsRead={(id) => {
-              setNotifications((prev) =>
-                prev.map((n) => (n.id === id ? { ...n, read: true } : n))
-              );
-            }}
-            onClearAll={() => setNotifications([])}
-          />
-        )}
-
-        {/* Write Verified Review Modal */}
-        {showWriteReviewModal && selectedPG && (
-          <WriteReviewModal
-            pgName={selectedPG.name}
-            pgId={selectedPG.id}
-            onClose={() => setShowWriteReviewModal(false)}
-            onSubmitReview={handleAddReview}
-          />
+          <Suspense fallback={null}>
+            <NotificationsModal
+              notifications={notifications}
+              onClose={() => setShowNotificationsModal(false)}
+              onMarkAsRead={(id) => {
+                setNotifications((prev) =>
+                  prev.map((n) => (n.id === id ? { ...n, read: true } : n))
+                );
+              }}
+              onClearAll={() => setNotifications([])}
+            />
+          </Suspense>
         )}
       </main>
     </div>
